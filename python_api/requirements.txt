@@ -1,2 +1,4 @@
-Flask
+fastapi
+uvicorn[standard]
 pybind11
+uv

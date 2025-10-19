@@ -58,17 +58,24 @@ cmake --build .
 ./risk-engine
 ```
 
+
 ### Python API
 
-Create a virtual environment and install dependencies:
+Create a virtual environment and install dependencies, then run the FastAPI server with uvicorn:
 
 ```bash
 python -m venv venv
-source venv/bin/activate    # Linux / Mac
-venv\Scripts\activate       # Windows
+# activate (Linux / macOS)
+source venv/bin/activate
+# activate (Windows PowerShell)
+.\venv\Scripts\Activate.ps1
 pip install -r python_api/requirements.txt
-python python_api/app.py
+cd python_api; uvicorn app:app --host 0.0.0.0 --port 5000 --reload
+# or using python -m uvicorn
+python -m uvicorn app:app --host 0.0.0.0 --port 5000 --reload
 ```
+
+The FastAPI interactive docs will be available at: http://localhost:5000/docs
 
 ### JS Dashboard
 
