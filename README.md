@@ -150,6 +150,7 @@ cd Quant-Enthusiasts-Risk-Engine
 #### 2. Build C++ Engine
 
 **Note**: On Linux/macOS, comment out `#include <corecrt_math_defines.h>` in source files (Windows-only header).
+Make sure to convert the build.sh file from CRLF line-ending to LF as well for it to work properly.
 
 **Quick Build (Recommended)**
 
