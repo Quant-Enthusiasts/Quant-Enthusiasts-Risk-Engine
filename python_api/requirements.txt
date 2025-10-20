@@ -1,3 +1,4 @@
 Flask
 pybind11
 setuptools
+Flask-Cors
