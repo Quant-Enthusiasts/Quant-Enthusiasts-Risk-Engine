@@ -539,6 +539,11 @@ Comment out this line in source files:
 </details>
 
 <details>
+<summary><b> "Port 5000 already in use" when running app.py (macOS) </b></summary>
+Disable AirPlay Receiver service from System Preferences -> General -> AirDrop & Handoff.
+</details>
+
+<details>
 <summary><b>Python module 'quant_risk_engine' not found</b></summary>
 
 ```bash
@@ -668,5 +673,6 @@ See [LICENSE](LICENSE) file for full details.
 <div align="center">
 
 **[⬆ Back to Top](#quant-enthusiasts-risk-engine)**
+
 
 </div>
