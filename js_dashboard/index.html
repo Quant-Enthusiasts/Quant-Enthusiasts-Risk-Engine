@@ -254,8 +254,14 @@
 
     <script>
         const CONFIG = {
-            API_BASE_URL: 'http://127.0.0.1:5000',
-            API_HEALTH_CHECK_INTERVAL: 30000
+            API_BASE_URL: 'http://127.0.0.1:5050',
+            API_HEALTH_CHECK_INTERVAL: 30000,
+            DEFAULT_MARKET_DATA: {
+                spot: 100,
+                rate: 0.05,
+                vol: 0.25,
+                dividend: 0.0
+            }
         };
 
         const STATE = {
