@@ -50,3 +50,9 @@ desktop.ini
 
 # Flask/Runtime
 .flaskenv
+
+install
+build
+build_*
+
+.cache
