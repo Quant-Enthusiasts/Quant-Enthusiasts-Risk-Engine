@@ -39,7 +39,7 @@ RUN ./venv/bin/pip install --upgrade pip && \
 
 # Build Python bindings
 WORKDIR /app/python_api
-RUN ../venv/bin/python setup.py build_ext --inplace
+RUN ../venv/bin/python setup.py install
 WORKDIR /app
 
 # -----------------------------

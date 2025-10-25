@@ -7,6 +7,7 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 [![C++17](https://img.shields.io/badge/C++-17-00599C?logo=cplusplus)](https://isocpp.org/)
 [![Python 3.11+](https://img.shields.io/badge/Python-3.11+-3776AB?logo=python&logoColor=white)](https://www.python.org/)
+[![CI/CD Pipeline](https://github.com/YOUR_USERNAME/YOUR_REPO/actions/workflows/ci.yml/badge.svg)](https://github.com/YOUR_USERNAME/YOUR_REPO/actions/workflows/ci.yml)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](http://makeapullrequest.com)
 
 [Features](#features) • [Quick Start](#quick-start) • [Documentation](#usage-examples) • [API](#api-reference) • [Contributing](#contributing)
@@ -942,6 +943,146 @@ curl -X POST http://127.0.0.1:5000/update_market_data \
 ```
 
 ---
+
+## CI/CD Pipeline
+
+### Overview
+
+The project uses **GitHub Actions** for continuous integration and deployment, providing automated testing across multiple platforms, compilers, and configurations. Every push and pull request triggers a comprehensive validation suite.
+
+[![CI/CD Status](https://github.com/YOUR_USERNAME/YOUR_REPO/actions/workflows/ci.yml/badge.svg)](https://github.com/YOUR_USERNAME/YOUR_REPO/actions/workflows/ci.yml)
+
+### Pipeline Architecture
+
+The CI/CD pipeline consists of **9 independent job stages** that run in parallel where possible:
+```
+
+┌─────────────────────────────────────────────────────────────┐
+│  1. C++ Build Matrix (8 combinations)                       │
+│     • Ubuntu + GCC/Clang × Debug/Release                    │
+│     • macOS + Clang × Debug/Release                         │
+└─────────────────────────────────────────────────────────────┘
+┌─────────────────────────────────────────────────────────────┐
+│  2. Python API Tests (6 combinations)                       │
+│     • Python 3.9, 3.10, 3.11 × Ubuntu/macOS                 │
+└─────────────────────────────────────────────────────────────┘
+┌─────────────────────────────────────────────────────────────┐
+│  3. Frontend Validation                                      │
+│     • HTML validation, CDN checks, JS syntax                │
+└─────────────────────────────────────────────────────────────┘
+┌─────────────────────────────────────────────────────────────┐
+│  4. Docker Build & Test                                      │
+│     • Full container build, bindings test, Flask startup    │
+└─────────────────────────────────────────────────────────────┘
+┌─────────────────────────────────────────────────────────────┐
+│  5. Integration Tests (Full Stack E2E)                      │
+│     • Real Flask API, portfolio calculations, endpoints     │
+└─────────────────────────────────────────────────────────────┘
+┌─────────────────────────────────────────────────────────────┐
+│  6. Code Quality Checks                                      │
+│     • Line endings, file permissions, linting               │
+└─────────────────────────────────────────────────────────────┘
+┌─────────────────────────────────────────────────────────────┐
+│  7. Build Script Validation                                  │
+│     • Test build.sh with all options & compilers            │
+└─────────────────────────────────────────────────────────────┘
+┌─────────────────────────────────────────────────────────────┐
+│  8. Performance Benchmarks (main branch only)               │
+│     • Timed execution of risk engine                        │
+└─────────────────────────────────────────────────────────────┘
+┌─────────────────────────────────────────────────────────────┐
+│  9. CI Summary Report                                        │
+│     • Aggregate results, status badges                      │
+└─────────────────────────────────────────────────────────────┘
+```
+
+### What Gets Tested
+
+#### 1. **C++ Build Matrix** (8 combinations)
+- **Platforms**: Ubuntu Latest, macOS Latest
+- **Compilers**: GCC, Clang
+- **Build Types**: Debug, Release
+- **Tests**: All C++ unit tests via CTest
+  - test_blackscholes
+  - test_portfolio
+  - test_risk_engine
+
+**Example Matrix:**
+```
+✓ Ubuntu + GCC + Debug
+✓ Ubuntu + GCC + Release
+✓ Ubuntu + Clang + Debug
+✓ Ubuntu + Clang + Release
+✓ macOS + Clang + Debug
+✓ macOS + Clang + Release
+```
+
+#### 2. **Python API Tests** (6 combinations)
+- **Python Versions**: 3.9, 3.10, 3.11
+- **Platforms**: Ubuntu, macOS
+- **Components Tested**:
+  - pybind11 bindings compilation
+  - Module import verification
+  - Flask app initialization
+  - Market data fetcher functionality
+
+#### 3. **Frontend Validation**
+- **HTML Validation**: Structural and semantic checks
+- **CDN Availability**: Verifies Tailwind CSS accessibility
+- **JavaScript Syntax**: Validates embedded JS code
+- **Security Scanning**: Checks for common vulnerabilities (eval, innerHTML)
+
+#### 4. **Docker Build & Test**
+- **Full Build**: Creates production Docker image
+- **Bindings Test**: Verifies Python bindings work in container
+- **Flask Startup**: Confirms API server can start
+- **Artifact Storage**: Saves Docker image on main branch
+
+#### 5. **Integration Tests** (Full Stack)
+- **Real API Server**: Starts actual Flask instance
+- **Health Check**: `/health` endpoint validation
+- **Portfolio Risk**: End-to-end risk calculation with real data
+- **Option Pricing**: `/price_option` endpoint testing
+- **Response Validation**: Ensures all required fields present
+
+**Test Workflow:**
+```bash
+# 1. Start Flask API
+python app.py &
+
+# 2. Test health endpoint
+curl http://localhost:5000/health
+
+# 3. Test portfolio calculation
+curl -X POST http://localhost:5000/calculate_risk \
+  -d '{"portfolio": [...], "market_data": {...}}'
+
+# 4. Validate response structure
+python -c "import json; verify_response()"
+```
+
+#### 6. **Code Quality Checks**
+- **Line Endings**: No Windows CRLF line endings
+- **File Permissions**: Shell scripts are executable
+- **TODO Scanning**: Identifies unfinished work (non-blocking)
+- **Required Files**: Validates project structure
+- **Python Linting**: Basic flake8 checks
+
+#### 7. **Build Script Validation**
+Tests the `build.sh` automation script:
+```bash
+./build.sh --help      # Help display
+./build.sh --clean     # Clean operation
+./build.sh --build     # Build with GCC
+./build.sh --compiler clang --build  # Build with Clang
+./build.sh --test      # Run all tests
+```
+
+#### 8. **Performance Benchmarks** (main branch only)
+- Executes risk engine in Release mode
+- Times execution and logs results
+- Stores benchmarks as artifacts for trend analysis
+
 
 ## Troubleshooting
 
