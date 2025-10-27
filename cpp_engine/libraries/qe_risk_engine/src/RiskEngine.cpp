@@ -22,6 +22,24 @@ RiskEngine::RiskEngine(int var_simulations)
     validateParameters();
 }
 
+void RiskEngine::setMarketDataCachePath(const std::string& db_path) {
+    if (db_path.empty()) {
+        local_market_db_.reset();  // Clear any existing DB
+        market_data_manager_.setLocalDB(nullptr);
+        market_data_cache_path_.clear();
+        return;
+    }
+
+    market_data_cache_path_ = db_path;
+    local_market_db_ = std::make_unique<LocalMarketDB>(db_path);
+    
+    if (!local_market_db_->init()) {
+        throw std::runtime_error("Failed to initialize market data cache at: " + db_path);
+    }
+    
+    market_data_manager_.setLocalDB(local_market_db_.get());
+}
+
 void RiskEngine::setVaRSimulations(int simulations) {
     if (simulations <= 0) {
         throw std::invalid_argument("VaR simulations must be positive");
@@ -162,6 +180,14 @@ PortfolioRiskResult RiskEngine::calculatePortfolioRisk(
     const Portfolio& portfolio, 
     const std::map<std::string, MarketData>& market_data_map
 ) {
+    for (const auto& [asset_id, md] : market_data_map) {
+        if (market_data_manager_.hasMarketData(asset_id)) {
+            market_data_manager_.updateMarketData(asset_id, md);
+        } else {
+            market_data_manager_.addMarketData(asset_id, md);
+        }
+    }
+
     validateParameters();
     
     PortfolioRiskResult result;
@@ -171,13 +197,14 @@ PortfolioRiskResult RiskEngine::calculatePortfolioRisk(
         return result;
     }
     
-    validateMarketData(portfolio, market_data_map);
+    validateMarketData(portfolio, market_data_manager_.getAllMarketData());
     
     const auto& instruments = portfolio.getInstruments();
+    const auto& cached_market_data = market_data_manager_.getAllMarketData();
     
     for (const auto& [instrument, quantity] : instruments) {
         std::string asset_id = instrument->getAssetId();
-        const MarketData& md = market_data_map.at(asset_id);
+        const MarketData& md = cached_market_data.at(asset_id);
         
         result.total_pv += calculateSingleInstrumentMetric(instrument, quantity, md, "price");
         result.total_delta += calculateSingleInstrumentMetric(instrument, quantity, md, "delta");
@@ -207,6 +234,7 @@ RiskMetrics RiskEngine::calculateRiskMetrics(
     const Portfolio& portfolio, 
     const std::map<std::string, MarketData>& market_data_map
 ) {
+    const auto& cached_market_data = market_data_manager_.getAllMarketData();
     RiskMetrics metrics;
     
     // Calculate initial portfolio value
@@ -214,7 +242,7 @@ RiskMetrics RiskEngine::calculateRiskMetrics(
     const auto& instruments = portfolio.getInstruments();
     
     for (const auto& [instrument, quantity] : instruments) {
-        const MarketData& md = market_data_map.at(instrument->getAssetId());
+        const MarketData& md = cached_market_data.at(instrument->getAssetId());
         double price = instrument->price(md);
         
         if (std::isnan(price) || std::isinf(price)) {
@@ -249,7 +277,7 @@ RiskMetrics RiskEngine::calculateRiskMetrics(
         
         for (const auto& [instrument, quantity] : instruments) {
             const std::string& asset_id = instrument->getAssetId();
-            const MarketData& md = market_data_map.at(asset_id);
+            const MarketData& md = cached_market_data.at(asset_id);
             
             const double random_shock = distribution(generator);
             const double drift = (md.risk_free_rate - 0.5 * md.volatility * md.volatility) * dt;

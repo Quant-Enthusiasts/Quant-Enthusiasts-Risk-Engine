@@ -3,6 +3,8 @@
 
 #include "Portfolio.h"
 #include "MarketData.h"
+#include "LocalMarketDB.h"
+#include <memory>
 #include <map>
 #include <vector>
 #include <string>
@@ -70,12 +72,21 @@ public:
     
     void setRandomSeed(unsigned int seed);
     void setUseFixedSeed(bool use_fixed);
+    
+    // Config database path for market data caching
+    void setMarketDataCachePath(const std::string& db_path);
+    
+    const MarketDataManager& getMarketDataManager() const { return market_data_manager_; }
+    MarketDataManager& getMarketDataManager() { return market_data_manager_; }
 
 private:
     int var_simulations_;
     double time_horizon_days_;
     unsigned int random_seed_;
     bool use_fixed_seed_;
+    MarketDataManager market_data_manager_;
+    std::unique_ptr<LocalMarketDB> local_market_db_;
+    std::string market_data_cache_path_;
     
     RiskMetrics calculateRiskMetrics(
         const Portfolio& portfolio, 

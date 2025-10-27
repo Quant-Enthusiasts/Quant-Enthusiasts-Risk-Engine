@@ -12,6 +12,21 @@
 #include "../libraries/qe_risk_engine/includes/MarketData.h"
 #include "../libraries/qe_risk_engine/includes/RiskEngine.h"
 
+class StockInstrument : public Instrument {
+public:
+    explicit StockInstrument(const std::string& asset_id) : asset_id_(asset_id) {}
+    std::string getAssetId() const override { return asset_id_; }
+    std::string getInstrumentType() const override { return "Stock"; }
+    bool isValid() const override { return !asset_id_.empty(); }
+    double price(const MarketData& md) const override { return md.spot_price; }
+    double delta(const MarketData& md) const override { return 1.0; }
+    double gamma(const MarketData& md) const override { return 0.0; }
+    double vega(const MarketData& md) const override { return 0.0; }
+    double theta(const MarketData& md) const override { return 0.0; }
+private:
+    std::string asset_id_;
+};
+
 void printSeparator(char c = '=', int width = 70) {
     std::cout << std::string(width, c) << std::endl;
 }
@@ -351,6 +366,59 @@ void demonstrateComplexPortfolio() {
     }
 }
 
+void demonstrateMarketDataCache() {
+    printHeader("Market Data Caching Demo");
+    
+    try {
+        RiskEngine engine;
+        engine.setMarketDataCachePath("./market_data_cache.db");
+        
+        auto assets = getRandomAssets(3);
+        std::map<std::string, MarketData> market_data;
+        
+        std::cout << "Initial market data:\n" << std::endl;
+        for (const auto& asset : assets) {
+            double spot = getRandomPrice();
+            double rate = getRandomRate();
+            double vol = getRandomVolatility();
+            market_data[asset] = MarketData(asset, spot, rate, vol);
+            
+            std::cout << asset << ":" << std::endl;
+            std::cout << "  Spot:  $" << spot << std::endl;
+            std::cout << "  Rate:   " << (rate * 100) << "%" << std::endl;
+            std::cout << "  Vol:    " << (vol * 100) << "%\n" << std::endl;
+        }
+        
+        Portfolio portfolio;
+        for (const auto& asset : assets) {
+            portfolio.addInstrument(
+                std::make_unique<StockInstrument>(asset),
+                getRandomQuantity(50, 150)
+            );
+        }
+        
+        std::cout << "Calculating risk with fresh market data..." << std::endl;
+        auto result1 = engine.calculatePortfolioRisk(portfolio, market_data);
+        std::cout << "Portfolio Value: $" << result1.total_pv << "\n" << std::endl;
+        
+        auto& mdm = engine.getMarketDataManager();
+        mdm.clear();
+        
+        std::cout << "Calculating risk using cached data..." << std::endl;
+        auto result2 = engine.calculatePortfolioRisk(portfolio, std::map<std::string, MarketData>());
+        std::cout << "Portfolio Value: $" << result2.total_pv << "\n" << std::endl;
+        
+        if (std::abs(result2.total_pv - result1.total_pv) < 0.01) {
+            std::cout << "SUCCESS: Cached calculation matches original!" << std::endl;
+        } else {
+            std::cout << "WARNING: Cache results differ from original." << std::endl;
+        }
+        
+    } catch (const std::exception& e) {
+        std::cerr << "Error in cache demo: " << e.what() << std::endl;
+    }
+}
+
 void demonstrateErrorHandling() {
     printHeader("Error Handling and Validation");
     
@@ -406,6 +474,7 @@ int main() {
         demonstrateAmericanOptions();
         demonstrateMarketDataManager();
         demonstrateComplexPortfolio();
+        demonstrateMarketDataCache();
         demonstrateErrorHandling();
         
         printSeparator('=', 70);

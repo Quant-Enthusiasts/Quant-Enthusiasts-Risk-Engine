@@ -5,6 +5,7 @@
 #include <stdexcept>
 #include <cmath>
 #include <map>
+class LocalMarketDB; // forward declaration to avoid circular include
 
 struct MarketData {
     std::string asset_id;
@@ -77,6 +78,7 @@ struct MarketData {
 
 class MarketDataManager {
 public:
+    MarketDataManager();
     void addMarketData(const std::string& asset_id, const MarketData& md);
     void updateMarketData(const std::string& asset_id, const MarketData& md);
     MarketData getMarketData(const std::string& asset_id) const;
@@ -85,9 +87,11 @@ public:
     void clear();
     size_t size() const;
     std::map<std::string, MarketData> getAllMarketData() const;
+    void setLocalDB(LocalMarketDB* db);
     
 private:
     std::map<std::string, MarketData> market_data_map_;
+    LocalMarketDB* local_db_{nullptr};
 };
 
 #endif
