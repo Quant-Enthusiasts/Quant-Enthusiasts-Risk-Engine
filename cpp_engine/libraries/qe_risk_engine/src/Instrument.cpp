@@ -475,3 +475,289 @@ double AmericanOption::theta(const MarketData &md) const {
 }
 
 std::string AmericanOption::getAssetId() const { return underlying_asset_id_; }
+
+// ============================================================================
+// Barrier Option Implementation
+// ============================================================================
+
+BarrierOption::BarrierOption(
+    OptionType option_type,
+    double strike,
+    double barrier,
+    BarrierType barrier_type,
+    double time_to_expiry,
+    std::string asset_id,
+    double rebate
+) : option_type_(option_type),
+    strike_price_(strike),
+    barrier_level_(barrier),
+    barrier_type_(barrier_type),
+    time_to_expiry_years_(time_to_expiry),
+    underlying_asset_id_(asset_id),
+    rebate_(rebate) {
+    validateParameters();
+}
+
+void BarrierOption::validateParameters() const {
+    if (strike_price_ <= 0.0) {
+        throw std::invalid_argument("Strike price must be positive");
+    }
+    if (barrier_level_ <= 0.0) {
+        throw std::invalid_argument("Barrier level must be positive");
+    }
+    if (time_to_expiry_years_ < 0.0) {
+        throw std::invalid_argument("Time to expiry cannot be negative");
+    }
+    if (underlying_asset_id_.empty()) {
+        throw std::invalid_argument("Asset ID cannot be empty");
+    }
+    if (rebate_ < 0.0) {
+        throw std::invalid_argument("Rebate cannot be negative");
+    }
+}
+
+bool BarrierOption::isValid() const {
+    try {
+        validateParameters();
+        return true;
+    } catch (...) {
+        return false;
+    }
+}
+
+std::string BarrierOption::getAssetId() const {
+    return underlying_asset_id_;
+}
+
+std::string BarrierOption::getInstrumentType() const {
+    return "BarrierOption";
+}
+
+double BarrierOption::price(const MarketData& md) const {
+#ifdef USE_QUANTLIB
+    // Convert our barrier type to QuantLib barrier type
+    QuantLibPricer::BarrierType ql_barrier_type;
+    switch (barrier_type_) {
+        case BarrierType::DownIn:
+            ql_barrier_type = QuantLibPricer::BarrierType::DownIn;
+            break;
+        case BarrierType::DownOut:
+            ql_barrier_type = QuantLibPricer::BarrierType::DownOut;
+            break;
+        case BarrierType::UpIn:
+            ql_barrier_type = QuantLibPricer::BarrierType::UpIn;
+            break;
+        case BarrierType::UpOut:
+            ql_barrier_type = QuantLibPricer::BarrierType::UpOut;
+            break;
+    }
+    
+    return QuantLibPricer::barrierOptionPrice(
+        md.spot_price,
+        strike_price_,
+        barrier_level_,
+        md.risk_free_rate,
+        time_to_expiry_years_,
+        md.volatility,
+        option_type_,
+        ql_barrier_type,
+        rebate_
+    );
+#else
+    throw std::runtime_error(
+        "Barrier option pricing requires QuantLib. "
+        "Rebuild with -DUSE_QUANTLIB=ON"
+    );
+#endif
+}
+
+double BarrierOption::delta(const MarketData& md) const {
+    // Numerical delta calculation
+    const double bump = md.spot_price * 0.01;
+    MarketData md_up = md;
+    MarketData md_down = md;
+    md_up.spot_price = md.spot_price + bump;
+    md_down.spot_price = md.spot_price - bump;
+    
+    return (price(md_up) - price(md_down)) / (2.0 * bump);
+}
+
+double BarrierOption::gamma(const MarketData& md) const {
+    // Numerical gamma calculation
+    const double bump = md.spot_price * 0.01;
+    MarketData md_up = md;
+    MarketData md_down = md;
+    md_up.spot_price = md.spot_price + bump;
+    md_down.spot_price = md.spot_price - bump;
+    
+    double delta_up = delta(md_up);
+    double delta_down = delta(md_down);
+    
+    return (delta_up - delta_down) / (2.0 * bump);
+}
+
+double BarrierOption::vega(const MarketData& md) const {
+    // Numerical vega calculation
+    const double bump = 0.01;
+    MarketData md_up = md;
+    MarketData md_down = md;
+    md_up.volatility = md.volatility + bump;
+    md_down.volatility = std::max(0.0, md.volatility - bump);
+    
+    return (price(md_up) - price(md_down)) / (2.0 * bump);
+}
+
+double BarrierOption::theta(const MarketData& md) const {
+    // Numerical theta calculation
+    const double bump = 1.0 / 365.0;
+    if (time_to_expiry_years_ < bump) {
+        return 0.0;
+    }
+    
+    double current_price = price(md);
+    
+    BarrierOption temp_option = *this;
+    temp_option.time_to_expiry_years_ = std::max(0.0, time_to_expiry_years_ - bump);
+    double future_price = temp_option.price(md);
+    
+    return (future_price - current_price) / bump;
+}
+
+// ============================================================================
+// Asian Option Implementation
+// ============================================================================
+
+AsianOption::AsianOption(
+    OptionType option_type,
+    double strike,
+    double time_to_expiry,
+    std::string asset_id,
+    AverageType average_type,
+    int num_fixings,
+    double running_sum,
+    int past_fixings
+) : option_type_(option_type),
+    strike_price_(strike),
+    time_to_expiry_years_(time_to_expiry),
+    underlying_asset_id_(asset_id),
+    average_type_(average_type),
+    num_fixings_(num_fixings),
+    running_sum_(running_sum),
+    past_fixings_(past_fixings) {
+    validateParameters();
+}
+
+void AsianOption::validateParameters() const {
+    if (strike_price_ <= 0.0) {
+        throw std::invalid_argument("Strike price must be positive");
+    }
+    if (time_to_expiry_years_ < 0.0) {
+        throw std::invalid_argument("Time to expiry cannot be negative");
+    }
+    if (underlying_asset_id_.empty()) {
+        throw std::invalid_argument("Asset ID cannot be empty");
+    }
+    if (num_fixings_ < 1) {
+        throw std::invalid_argument("Number of fixings must be positive");
+    }
+    if (past_fixings_ < 0 || past_fixings_ > num_fixings_) {
+        throw std::invalid_argument("Invalid number of past fixings");
+    }
+}
+
+bool AsianOption::isValid() const {
+    try {
+        validateParameters();
+        return true;
+    } catch (...) {
+        return false;
+    }
+}
+
+std::string AsianOption::getAssetId() const {
+    return underlying_asset_id_;
+}
+
+std::string AsianOption::getInstrumentType() const {
+    return "AsianOption";
+}
+
+double AsianOption::price(const MarketData& md) const {
+#ifdef USE_QUANTLIB
+    // Convert our average type to QuantLib average type
+    QuantLibPricer::AverageType ql_average_type = 
+        (average_type_ == AverageType::Arithmetic) 
+        ? QuantLibPricer::AverageType::Arithmetic 
+        : QuantLibPricer::AverageType::Geometric;
+    
+    return QuantLibPricer::asianOptionPrice(
+        md.spot_price,
+        strike_price_,
+        md.risk_free_rate,
+        time_to_expiry_years_,
+        md.volatility,
+        option_type_,
+        ql_average_type,
+        num_fixings_,
+        running_sum_,
+        past_fixings_
+    );
+#else
+    throw std::runtime_error(
+        "Asian option pricing requires QuantLib. "
+        "Rebuild with -DUSE_QUANTLIB=ON"
+    );
+#endif
+}
+
+double AsianOption::delta(const MarketData& md) const {
+    // Numerical delta calculation
+    const double bump = md.spot_price * 0.01;
+    MarketData md_up = md;
+    MarketData md_down = md;
+    md_up.spot_price = md.spot_price + bump;
+    md_down.spot_price = md.spot_price - bump;
+    
+    return (price(md_up) - price(md_down)) / (2.0 * bump);
+}
+
+double AsianOption::gamma(const MarketData& md) const {
+    // Numerical gamma calculation
+    const double bump = md.spot_price * 0.01;
+    MarketData md_up = md;
+    MarketData md_down = md;
+    md_up.spot_price = md.spot_price + bump;
+    md_down.spot_price = md.spot_price - bump;
+    
+    double delta_up = delta(md_up);
+    double delta_down = delta(md_down);
+    
+    return (delta_up - delta_down) / (2.0 * bump);
+}
+
+double AsianOption::vega(const MarketData& md) const {
+    // Numerical vega calculation
+    const double bump = 0.01;
+    MarketData md_up = md;
+    MarketData md_down = md;
+    md_up.volatility = md.volatility + bump;
+    md_down.volatility = std::max(0.0, md.volatility - bump);
+    
+    return (price(md_up) - price(md_down)) / (2.0 * bump);
+}
+
+double AsianOption::theta(const MarketData& md) const {
+    // Numerical theta calculation
+    const double bump = 1.0 / 365.0;
+    if (time_to_expiry_years_ < bump) {
+        return 0.0;
+    }
+    
+    double current_price = price(md);
+    
+    AsianOption temp_option = *this;
+    temp_option.time_to_expiry_years_ = std::max(0.0, time_to_expiry_years_ - bump);
+    double future_price = temp_option.price(md);
+    
+    return (future_price - current_price) / bump;
+}

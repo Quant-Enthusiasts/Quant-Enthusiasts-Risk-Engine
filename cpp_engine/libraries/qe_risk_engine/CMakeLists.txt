@@ -11,11 +11,23 @@ set(sources src/BinomialTree.cpp
             src/RiskEngine.cpp
 )
 
-add_library(${PROJECT_NAME} SHARED ${sources})
+# Add QuantLib wrapper if enabled
+if(USE_QUANTLIB)
+    list(APPEND sources src/QuantLibPricingEngine.cpp)
+endif()
+
+# On Windows, building as STATIC avoids needing explicit symbol exports for a DLL import library
+add_library(${PROJECT_NAME} STATIC ${sources})
 target_include_directories(${PROJECT_NAME} PUBLIC
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/includes>
     $<INSTALL_INTERFACE:include>
 )
+
+# Link QuantLib if enabled
+if(USE_QUANTLIB)
+    target_link_libraries(${PROJECT_NAME} PUBLIC QuantLib::QuantLib)
+    target_compile_definitions(${PROJECT_NAME} PUBLIC USE_QUANTLIB)
+endif()
 
 # Set proper install name for macOS
 set_target_properties(${PROJECT_NAME} PROPERTIES

@@ -30,6 +30,10 @@ cmake .. -GNinja -DCMAKE_BUILD_TYPE=Release
 cmake --build .
 cmake --install .
 
+# (Optional) Use CMake presets
+# Presets are defined under cpp_engine/. Run them from this folder, e.g.
+# cmake --preset quantlib
+
 # Setup Python API
 cd ../../python_api
 python3 -m venv venv

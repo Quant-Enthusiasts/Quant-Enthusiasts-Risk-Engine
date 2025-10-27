@@ -9,18 +9,40 @@ I did not touch the essence of the code as there are a lot because I did not wan
 
 To build and install in a local folder
 
+Linux/macOS:
+
 ```bash
 cd cpp_engine
-mkdir build
+mkdir -p build
 cd build
 cmake .. -GNinja -DCMAKE_BUILD_TYPE=Release
 cmake --build .
 cmake --install .
 ```
 
-To run the tests (once built ofc) on the top level:
+Windows (PowerShell):
+
+```powershell
+# From the repository root
+cmake -S cpp_engine -B cpp_engine\build -G Ninja -DCMAKE_BUILD_TYPE=Release
+cmake --build cpp_engine\build --config Release
+cmake --install cpp_engine\build --config Release
+```
+
+Notes:
+- pybind11 is fetched automatically during configure if it is not installed on your system.
+- On Windows, avoid pasting multiline commands with prompts like ">>"; run each line separately or use the explicit -S/-B form shown above.
+
+To run the tests (once built ofc) at the top level:
 
 ```bash
-./run_test.sh
+# Shell (Linux/macOS)
+./run_tests.sh
 python3 test_installed_module.py
+
+# Windows PowerShell
+./run_tests.sh
+python .\test_installed_module.py
 ```
+
+The Python test script automatically adds `cpp_engine/install/lib` to `PYTHONPATH` and imports the built `quant_risk_engine` module.

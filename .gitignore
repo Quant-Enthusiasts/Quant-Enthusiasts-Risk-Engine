@@ -32,6 +32,7 @@ CTestTestfile.cmake
 Testing
 _skbuild
 build_cpp
+cpp_engine\build
 /python_api/build
 /python_api/dist
 /python_api/quant_risk_engine.egg-info

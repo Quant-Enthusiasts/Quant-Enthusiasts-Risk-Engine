@@ -230,4 +230,26 @@ double impliedVolatility(
     throw std::runtime_error("Implied volatility did not converge");
 }
 
+#ifdef USE_QUANTLIB
+QuantLibPricer::ValidationResult validateCallPrice(
+    double S, double K, double r, double T, double sigma,
+    double tolerance
+) {
+    double internal_price = callPrice(S, K, r, T, sigma);
+    return QuantLibPricer::validateBlackScholesPrice(
+        internal_price, S, K, r, T, sigma, OptionType::Call, tolerance
+    );
+}
+
+QuantLibPricer::ValidationResult validatePutPrice(
+    double S, double K, double r, double T, double sigma,
+    double tolerance
+) {
+    double internal_price = putPrice(S, K, r, T, sigma);
+    return QuantLibPricer::validateBlackScholesPrice(
+        internal_price, S, K, r, T, sigma, OptionType::Put, tolerance
+    );
+}
+#endif
+
 }

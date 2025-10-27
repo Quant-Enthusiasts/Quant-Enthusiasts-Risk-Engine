@@ -168,17 +168,43 @@ std::vector<std::vector<TreeNode>> buildTree(
             double exercise_value = 0.0;
             if (type == OptionType::Call) {
                 exercise_value = std::max(0.0, tree[step][i].stock_price - K);
-                } else {
-            exercise_value = std::max(0.0, K - tree[step][i].stock_price);
-                }
-                if (is_american && exercise_value > hold_value) {
-            tree[step][i].option_value = exercise_value;
-            tree[step][i].exercise_optimal = true;
-        } else {
-            tree[step][i].option_value = hold_value;
-            tree[step][i].exercise_optimal = false;
+            } else {
+                exercise_value = std::max(0.0, K - tree[step][i].stock_price);
+            }
+            
+            if (is_american && exercise_value > hold_value) {
+                tree[step][i].option_value = exercise_value;
+                tree[step][i].exercise_optimal = true;
+            } else {
+                tree[step][i].option_value = hold_value;
+                tree[step][i].exercise_optimal = false;
+            }
         }
-    }}
+    }
 
-return tree;}
+    return tree;
 }
+
+#ifdef USE_QUANTLIB
+QuantLibPricer::ValidationResult validateEuropeanPrice(
+    double S, double K, double r, double T, double sigma,
+    OptionType type, int steps, double tolerance
+) {
+    double internal_price = europeanOptionPrice(S, K, r, T, sigma, type, steps);
+    return QuantLibPricer::validateBinomialPriceEuropean(
+        internal_price, S, K, r, T, sigma, type, steps, tolerance
+    );
+}
+
+QuantLibPricer::ValidationResult validateAmericanPrice(
+    double S, double K, double r, double T, double sigma,
+    OptionType type, int steps, double tolerance
+) {
+    double internal_price = americanOptionPrice(S, K, r, T, sigma, type, steps);
+    return QuantLibPricer::validateBinomialPriceAmerican(
+        internal_price, S, K, r, T, sigma, type, steps, tolerance
+    );
+}
+#endif
+
+} // namespace BinomialTree

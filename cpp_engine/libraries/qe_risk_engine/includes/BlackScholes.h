@@ -3,6 +3,10 @@
 
 #include <stdexcept>
 
+#ifdef USE_QUANTLIB
+#include "QuantLibPricingEngine.h"
+#endif
+
 namespace BlackScholes {
     double N(double z);
     double nPrime(double z);
@@ -29,6 +33,19 @@ namespace BlackScholes {
     );
     
     void validateInputs(double S, double K, double r, double T, double sigma);
+    
+#ifdef USE_QUANTLIB
+    // Validation functions that compare with QuantLib
+    QuantLibPricer::ValidationResult validateCallPrice(
+        double S, double K, double r, double T, double sigma,
+        double tolerance = 1e-6
+    );
+    
+    QuantLibPricer::ValidationResult validatePutPrice(
+        double S, double K, double r, double T, double sigma,
+        double tolerance = 1e-6
+    );
+#endif
 }
 
 #endif
