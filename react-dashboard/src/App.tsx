@@ -67,18 +67,25 @@ function App() {
         <Header isApiOnline={isApiOnline} />
 
         <div className="space-y-8">
-          <PortfolioSection
-            portfolio={portfolio}
-            onAddInstrument={addInstrument}
-            onRemoveInstrument={removeInstrument}
-            onError={setError}
-          />
+          {/* Grid layout for Market Data (30%) and Portfolio Builder (70%) */}
+          <div className="grid grid-cols-1 lg:grid-cols-10 gap-8">
+            <div className="lg:col-span-3">
+              <MarketDataSection
+                portfolio={portfolio}
+                marketData={marketData}
+                onUpdateMarketData={updateMarketData}
+              />
+            </div>
 
-          <MarketDataSection
-            portfolio={portfolio}
-            marketData={marketData}
-            onUpdateMarketData={updateMarketData}
-          />
+            <div className="lg:col-span-7">
+              <PortfolioSection
+                portfolio={portfolio}
+                onAddInstrument={addInstrument}
+                onRemoveInstrument={removeInstrument}
+                onError={setError}
+              />
+            </div>
+          </div>
 
           <RiskAnalysisSection
             results={results}

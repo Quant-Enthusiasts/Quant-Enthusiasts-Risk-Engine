@@ -41,13 +41,13 @@ export const MarketDataSection: React.FC<MarketDataSectionProps> = ({
   };
 
   return (
-    <section className="glass-effect rounded-xl p-6 shadow-2xl fade-in">
-      <h3 className="text-xl font-semibold mb-4 flex items-center gap-2">
+    <section className="glass-effect rounded-xl p-6 shadow-2xl fade-in h-full">
+      <h2 className="text-2xl font-bold mb-6 flex items-center gap-2">
         <span className="text-2xl">📊</span>
         <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-400">
           Market Data
         </span>
-      </h3>
+      </h2>
       <div className="space-y-4">
         {Array.from(neededAssets).map((assetId) => {
           const data = marketData[assetId] || config.defaultMarketData;
@@ -56,13 +56,13 @@ export const MarketDataSection: React.FC<MarketDataSectionProps> = ({
               key={assetId}
               className="p-4 bg-gray-800/40 rounded-xl border border-gray-700/60 hover:border-cyan-500/50 transition fade-in"
             >
-              <h4 className="text-lg font-bold text-cyan-400 mb-3 flex items-center gap-2">
+              <h4 className="text-base font-bold text-cyan-400 mb-3 flex items-center gap-2">
                 <span>📌</span>
                 <span>{assetId}</span>
               </h4>
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="text-xs text-gray-400 block mb-1">
+                  <label className="block text-sm font-medium text-gray-300 mb-1">
                     Spot Price
                   </label>
                   <input
@@ -73,11 +73,11 @@ export const MarketDataSection: React.FC<MarketDataSectionProps> = ({
                     }
                     step="0.01"
                     min="0.01"
-                    className="w-full bg-gray-700/60 text-white p-2 rounded-lg text-sm border border-gray-600 focus:ring-2 focus:ring-cyan-500 focus:border-transparent"
+                    className="w-full bg-gray-800/60 border border-gray-700 rounded-lg px-3 py-2 text-white focus:ring-2 focus:ring-cyan-500 focus:border-transparent"
                   />
                 </div>
                 <div>
-                  <label className="text-xs text-gray-400 block mb-1">
+                  <label className="block text-sm font-medium text-gray-300 mb-1">
                     Rate (r)
                   </label>
                   <input
@@ -87,11 +87,11 @@ export const MarketDataSection: React.FC<MarketDataSectionProps> = ({
                       handleInputChange(assetId, "rate", e.target.value)
                     }
                     step="0.001"
-                    className="w-full bg-gray-700/60 text-white p-2 rounded-lg text-sm border border-gray-600 focus:ring-2 focus:ring-cyan-500 focus:border-transparent"
+                    className="w-full bg-gray-800/60 border border-gray-700 rounded-lg px-3 py-2 text-white focus:ring-2 focus:ring-cyan-500 focus:border-transparent"
                   />
                 </div>
                 <div>
-                  <label className="text-xs text-gray-400 block mb-1">
+                  <label className="block text-sm font-medium text-gray-300 mb-1">
                     Volatility (σ)
                   </label>
                   <input
@@ -102,11 +102,11 @@ export const MarketDataSection: React.FC<MarketDataSectionProps> = ({
                     }
                     step="0.01"
                     min="0"
-                    className="w-full bg-gray-700/60 text-white p-2 rounded-lg text-sm border border-gray-600 focus:ring-2 focus:ring-cyan-500 focus:border-transparent"
+                    className="w-full bg-gray-800/60 border border-gray-700 rounded-lg px-3 py-2 text-white focus:ring-2 focus:ring-cyan-500 focus:border-transparent"
                   />
                 </div>
                 <div>
-                  <label className="text-xs text-gray-400 block mb-1">
+                  <label className="block text-sm font-medium text-gray-300 mb-1">
                     Dividend
                   </label>
                   <input
@@ -117,7 +117,7 @@ export const MarketDataSection: React.FC<MarketDataSectionProps> = ({
                     }
                     step="0.001"
                     min="0"
-                    className="w-full bg-gray-700/60 text-white p-2 rounded-lg text-sm border border-gray-600 focus:ring-2 focus:ring-cyan-500 focus:border-transparent"
+                    className="w-full bg-gray-800/60 border border-gray-700 rounded-lg px-3 py-2 text-white focus:ring-2 focus:ring-cyan-500 focus:border-transparent"
                   />
                 </div>
               </div>
