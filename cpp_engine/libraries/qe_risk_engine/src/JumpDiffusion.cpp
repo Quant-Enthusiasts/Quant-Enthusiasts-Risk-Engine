@@ -49,7 +49,7 @@ double mertonCallPrice(
     }
     
     const double k = std::exp(jump_mean + 0.5 * jump_vol * jump_vol) - 1.0;
-    const double lambda_prime = lambda * (1.0 + k);
+    // const double lambda_prime = lambda * (1.0 + k);
     
     double option_value = 0.0;
     double sum_prob = 0.0;

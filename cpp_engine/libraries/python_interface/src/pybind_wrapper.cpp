@@ -1,10 +1,12 @@
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
 #include <pybind11/stl_bind.h>
+
 #include "Instrument.h"
 #include "Portfolio.h"
 #include "RiskEngine.h"
 #include "MarketData.h"
+
 #include <memory>
 
 namespace py = pybind11;
@@ -120,6 +122,9 @@ PYBIND11_MODULE(quant_risk_engine, m)
         .def_readwrite("total_vega", &PortfolioRiskResult::total_vega)
         .def_readwrite("total_theta", &PortfolioRiskResult::total_theta)
         .def_readwrite("value_at_risk_95", &PortfolioRiskResult::value_at_risk_95)
+        .def_readwrite("value_at_risk_99", &PortfolioRiskResult::value_at_risk_99)
+        .def_readwrite("expected_shortfall_95", &PortfolioRiskResult::expected_shortfall_95)
+        .def_readwrite("expected_shortfall_99", &PortfolioRiskResult::expected_shortfall_99)
         .def("is_valid", &PortfolioRiskResult::isValid)
         .def("reset", &PortfolioRiskResult::reset);
 
@@ -129,8 +134,6 @@ PYBIND11_MODULE(quant_risk_engine, m)
         .def("calculate_portfolio_risk", &RiskEngine::calculatePortfolioRisk)
         .def("set_var_simulations", &RiskEngine::setVaRSimulations)
         .def("get_var_simulations", &RiskEngine::getVaRSimulations)
-        .def("set_var_confidence_level", &RiskEngine::setVaRConfidenceLevel)
-        .def("get_var_confidence_level", &RiskEngine::getVaRConfidenceLevel)
         .def("set_var_time_horizon_days", &RiskEngine::setVaRTimeHorizonDays)
         .def("get_var_time_horizon_days", &RiskEngine::getVaRTimeHorizonDays)
         .def("set_random_seed", &RiskEngine::setRandomSeed)

@@ -1,0 +1,1808 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quant Enthusiasts - Documentation</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+
+        * {
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #0a0e1a;
+            background-image:
+                radial-gradient(at 0% 0%, rgba(6, 182, 212, 0.1) 0px, transparent 50%),
+                radial-gradient(at 100% 0%, rgba(99, 102, 241, 0.08) 0px, transparent 50%),
+                radial-gradient(at 100% 100%, rgba(236, 72, 153, 0.06) 0px, transparent 50%),
+                radial-gradient(at 0% 100%, rgba(14, 165, 233, 0.06) 0px, transparent 50%);
+            color: #e5e7eb;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        .glass-effect {
+            background: rgba(15, 23, 42, 0.85);
+            backdrop-filter: blur(20px) saturate(180%);
+            -webkit-backdrop-filter: blur(20px) saturate(180%);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 1.25rem;
+            box-shadow:
+                0 8px 32px 0 rgba(0, 0, 0, 0.37),
+                inset 0 1px 1px 0 rgba(255, 255, 255, 0.05);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .glass-effect::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: linear-gradient(90deg,
+                    transparent,
+                    rgba(6, 182, 212, 0.3) 50%,
+                    transparent);
+        }
+
+        .gradient-text {
+            background: linear-gradient(135deg, #06b6d4, #3b82f6, #8b5cf6);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: gradientShift 3s ease infinite;
+            background-size: 200% 200%;
+        }
+
+        @keyframes gradientShift {
+
+            0%,
+            100% {
+                background-position: 0% 50%;
+            }
+
+            50% {
+                background-position: 100% 50%;
+            }
+        }
+
+        .sidebar {
+            position: sticky;
+            top: 2rem;
+            max-height: calc(100vh - 4rem);
+            overflow-y: auto;
+        }
+
+        .sidebar::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .sidebar::-webkit-scrollbar-track {
+            background: rgba(15, 23, 42, 0.5);
+            border-radius: 10px;
+        }
+
+        .sidebar::-webkit-scrollbar-thumb {
+            background: linear-gradient(180deg, #06b6d4, #0891b2);
+            border-radius: 10px;
+        }
+
+        .nav-item {
+            transition: all 0.3s ease;
+            cursor: pointer;
+            padding: 0.75rem 1rem;
+            border-radius: 0.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .nav-item:hover {
+            background: rgba(6, 182, 212, 0.1);
+            transform: translateX(4px);
+        }
+
+        .nav-item.active {
+            background: rgba(6, 182, 212, 0.2);
+            border-left: 3px solid #06b6d4;
+        }
+
+        .section-content {
+            display: none;
+            animation: fadeInUp 0.5s ease;
+        }
+
+        .section-content.active {
+            display: block;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .code-block {
+            background: rgba(17, 24, 39, 0.9);
+            border: 1px solid rgba(6, 182, 212, 0.3);
+            border-radius: 0.75rem;
+            padding: 1.5rem;
+            overflow-x: auto;
+            font-family: 'Courier New', monospace;
+            font-size: 0.875rem;
+            line-height: 1.6;
+            white-space: pre;
+            text-align: left;
+        }
+
+        .code-block::-webkit-scrollbar {
+            height: 8px;
+        }
+
+        .code-block::-webkit-scrollbar-track {
+            background: rgba(15, 23, 42, 0.5);
+            border-radius: 10px;
+        }
+
+        .code-block::-webkit-scrollbar-thumb {
+            background: linear-gradient(90deg, #06b6d4, #0891b2);
+            border-radius: 10px;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .badge-blue {
+            background: rgba(59, 130, 246, 0.2);
+            color: #93c5fd;
+        }
+
+        .badge-green {
+            background: rgba(16, 185, 129, 0.2);
+            color: #6ee7b7;
+        }
+
+        .badge-purple {
+            background: rgba(139, 92, 246, 0.2);
+            color: #c4b5fd;
+        }
+
+        .badge-red {
+            background: rgba(239, 68, 68, 0.2);
+            color: #fca5a5;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+            margin: 1.5rem 0;
+        }
+
+        th {
+            background: rgba(17, 24, 39, 0.9);
+            padding: 0.75rem 1rem;
+            text-align: left;
+            font-weight: 600;
+            color: #06b6d4;
+            border-bottom: 2px solid rgba(6, 182, 212, 0.3);
+        }
+
+        td {
+            padding: 0.75rem 1rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        tr:hover {
+            background: rgba(6, 182, 212, 0.05);
+        }
+
+        .home-link {
+            transition: all 0.3s ease;
+        }
+
+        .home-link:hover {
+            transform: translateY(-2px);
+            color: #06b6d4;
+        }
+
+        .feature-card {
+            transition: all 0.3s ease;
+            cursor: default;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-4px);
+            border-color: rgba(6, 182, 212, 0.4);
+        }
+
+        .responsive-table-container {
+            width: 100%;
+            overflow-x: auto;
+        }
+
+
+        .responsive-table-container::-webkit-scrollbar {
+            height: 8px;
+        }
+
+
+        .responsive-table-container::-webkit-scrollbar-track {
+            background: rgba(15, 23, 42, 0.5);
+            border-radius: 10px;
+        }
+
+
+        .responsive-table-container::-webkit-scrollbar-thumb {
+            background: linear-gradient(90deg, #06b6d4, #0891b2);
+            border-radius: 10px;
+        }
+
+
+        td {
+            word-break: break-word;
+            white-space: normal;
+        }
+    </style>
+</head>
+
+<body class="min-h-screen">
+    <div class="container mx-auto p-4 md:p-8 max-w-7xl">
+        <header class="mb-8 md:mb-12">
+            <div class="flex items-center justify-between mb-6">
+                <div>
+                    <h1 class="text-3xl md:text-5xl font-extrabold gradient-text mb-2">
+                        Quant Enthusiasts
+                    </h1>
+                    <p class="text-lg md:text-xl text-blue-200/90">
+                        Risk Engine Documentation
+                    </p>
+                </div>
+                <a href="/"
+                    class="home-link text-sm md:text-base text-gray-400 hover:text-cyan-400 flex items-center gap-2">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                    </svg>
+                    Back to Dashboard
+                </a>
+            </div>
+        </header>
+
+        <main class="grid grid-cols-1 lg:grid-cols-4 gap-6">
+            <aside class="lg:col-span-1">
+                <nav class="glass-effect p-4 sidebar">
+                    <h3 class="text-sm font-bold text-gray-400 uppercase tracking-wider mb-4">Documentation</h3>
+                    <div class="nav-item active" data-section="overview">
+                        <div class="font-semibold text-cyan-400">Overview</div>
+                    </div>
+                    <div class="nav-item" data-section="quickstart">
+                        <div class="font-semibold">Quick Start</div>
+                    </div>
+                    <div class="nav-item" data-section="architecture">
+                        <div class="font-semibold">Architecture</div>
+                    </div>
+                    <div class="nav-item" data-section="api">
+                        <div class="font-semibold">API Reference</div>
+                    </div>
+                    <div class="nav-item" data-section="pricing">
+                        <div class="font-semibold">Pricing Models</div>
+                    </div>
+                    <div class="nav-item" data-section="risk">
+                        <div class="font-semibold">Risk Metrics</div>
+                    </div>
+                    <div class="nav-item" data-section="market-data">
+                        <div class="font-semibold">Market Data</div>
+                    </div>
+                    <div class="nav-item" data-section="deployment">
+                        <div class="font-semibold">Deployment</div>
+                    </div>
+                    <div class="nav-item" data-section="troubleshooting">
+                        <div class="font-semibold">Troubleshooting</div>
+                    </div>
+                </nav>
+            </aside>
+
+            <div class="lg:col-span-3">
+                <div class="glass-effect p-6 md:p-8">
+                    <div id="content-area">
+                        <!-- OVERVIEW SECTION -->
+                        <div class="section-content active" data-section="overview">
+                            <h2 class="text-3xl font-bold text-cyan-400 mb-6">Overview</h2>
+
+                            <div class="mb-8">
+                                <p class="text-gray-300 text-lg mb-4">
+                                    A high-performance quantitative finance platform for portfolio risk management and
+                                    options pricing.
+                                    Built with C++17 core, Python bindings, and an interactive web dashboard.
+                                </p>
+                            </div>
+
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
+                                <div class="feature-card bg-gray-800/40 p-5 rounded-lg border border-gray-700/60">
+                                    <h4 class="text-cyan-400 font-bold mb-2">Multiple Pricing Models</h4>
+                                    <p class="text-sm text-gray-400">Black-Scholes, Binomial Tree, Merton Jump Diffusion
+                                    </p>
+                                </div>
+                                <div class="feature-card bg-gray-800/40 p-5 rounded-lg border border-gray-700/60">
+                                    <h4 class="text-cyan-400 font-bold mb-2">Risk Analytics</h4>
+                                    <p class="text-sm text-gray-400">Greeks calculation, VaR, Portfolio aggregation</p>
+                                </div>
+                                <div class="feature-card bg-gray-800/40 p-5 rounded-lg border border-gray-700/60">
+                                    <h4 class="text-cyan-400 font-bold mb-2">Live Market Data</h4>
+                                    <p class="text-sm text-gray-400">Automatic fetching from Yahoo Finance with caching
+                                    </p>
+                                </div>
+                                <div class="feature-card bg-gray-800/40 p-5 rounded-lg border border-gray-700/60">
+                                    <h4 class="text-cyan-400 font-bold mb-2">RESTful API</h4>
+                                    <p class="text-sm text-gray-400">Flask-based endpoints with validation</p>
+                                </div>
+                            </div>
+
+                            <h3 class="text-xl font-bold text-gray-100 mb-4">System Architecture</h3>
+                            <div class="code-block mb-6">
+                                JavaScript Dashboard (Frontend)
+                                |
+                                | HTTP/JSON
+                                v
+                                Python API Layer (Flask)
+                                |
+                                | pybind11
+                                v
+                                C++ Risk Engine (Core)</div>
+
+                            <h3 class="text-xl font-bold text-gray-100 mb-4">Key Features</h3>
+                            <ul class="space-y-2 text-gray-300 mb-8">
+                                <li class="flex items-start gap-2">
+                                    <span class="text-cyan-400 mt-1">•</span>
+                                    <span>European and American options pricing</span>
+                                </li>
+                                <li class="flex items-start gap-2">
+                                    <span class="text-cyan-400 mt-1">•</span>
+                                    <span>Complete Greeks calculation (Delta, Gamma, Vega, Theta, Rho)</span>
+                                </li>
+                                <li class="flex items-start gap-2">
+                                    <span class="text-cyan-400 mt-1">•</span>
+                                    <span>Monte Carlo Value at Risk with configurable simulations</span>
+                                </li>
+                                <li class="flex items-start gap-2">
+                                    <span class="text-cyan-400 mt-1">•</span>
+                                    <span>Live market data integration with 24-hour caching</span>
+                                </li>
+                                <li class="flex items-start gap-2">
+                                    <span class="text-cyan-400 mt-1">•</span>
+                                    <span>Portfolio-level risk aggregation and analytics</span>
+                                </li>
+                            </ul>
+
+                            <div>
+                                <h3 class="text-xl font-bold text-gray-100 mb-4">Monitoring</h3>
+
+                                <h4 class="text-sm font-semibold text-gray-300 mb-2">Health Checks</h4>
+                                <div class="code-block mb-4">
+                                    # Kubernetes liveness probe
+livenessProbe:
+httpGet:
+path: /health
+port: 5000
+initialDelaySeconds: 30
+periodSeconds: 10</div>
+
+                                <h4 class="text-sm font-semibold text-gray-300 mb-2">Key Metrics to Monitor</h4>
+                                <ul class="text-sm text-gray-400 space-y-1">
+                                    <li>• Request rate and latency</li>
+                                    <li>• Error rate by endpoint</li>
+                                    <li>• Cache hit/miss ratio</li>
+                                    <li>• Memory and CPU usage</li>
+                                    <li>• Market data fetch failures</li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        <!-- QUICK START SECTION -->
+                        <div class="section-content" data-section="quickstart">
+                            <h2 class="text-3xl font-bold text-cyan-400 mb-6">Quick Start</h2>
+
+                            <div class="mb-8">
+                                <h3 class="text-xl font-bold text-gray-100 mb-4">Prerequisites</h3>
+                                <div class="code-block mb-4"># Check required tools
+python3 --version # Need 3.11+
+cmake --version # Need 3.25+
+g++ --version # Need 7+ (or clang 5+)</div>
+                            </div>
+
+                            <div class="mb-8">
+                                <h3 class="text-xl font-bold text-gray-100 mb-4">Installation Steps</h3>
+
+                                <h4 class="text-lg font-semibold text-cyan-400 mb-3 mt-6">1. Clone Repository</h4>
+                                <div class="code-block">git clone
+https://github.com/Quant-Enthusiasts/Quant-Enthusiasts-Risk-Engine.git
+cd Quant-Enthusiasts-Risk-Engine</div>
+
+                                <h4 class="text-lg font-semibold text-cyan-400 mb-3 mt-6">2. Build C++ Engine</h4>
+                                <div class="code-block">cd cpp_engine
+mkdir build && cd build
+cmake .. -GNinja -DCMAKE_BUILD_TYPE=Release
+cmake --build .
+cmake --install .
+cd ../..</div>
+
+                                <h4 class="text-lg font-semibold text-cyan-400 mb-3 mt-6">3. Setup Python API</h4>
+                                <div class="code-block">cd python_api
+python3 -m venv venv
+source venv/bin/activate # Windows: venv\Scripts\activate
+pip install -r requirements.txt
+python setup.py build_ext --inplace</div>
+
+                                <h4 class="text-lg font-semibold text-cyan-400 mb-3 mt-6">4. Start Server</h4>
+                                <div class="code-block">export PYTHONPATH="../cpp_engine/install/lib:$PYTHONPATH"
+python app.py</div>
+                            </div>
+
+                            <div class="bg-green-900/20 border border-green-500/50 rounded-lg p-4 mb-6">
+                                <p class="text-green-300 font-semibold mb-2">Server Running</p>
+                                <p class="text-sm text-green-200">API is now available at http://127.0.0.1:5000</p>
+                            </div>
+
+                            <div class="mb-8">
+                                <h3 class="text-xl font-bold text-gray-100 mb-4">Test Installation</h3>
+                                <div class="code-block"># Health check
+curl http://127.0.0.1:5000/health
+
+# Price an option
+curl -X POST http://127.0.0.1:5000/price_option \
+-H "Content-Type: application/json" \
+-d '{
+"type": "call",
+"strike": 100,
+"expiry": 1.0,
+"asset_id": "AAPL",
+"style": "european",
+"market_data": {"spot": 105, "rate": 0.05, "vol": 0.25}
+}'</div>
+                            </div>
+                        </div>
+
+                        <!-- ARCHITECTURE SECTION -->
+                        <div class="section-content" data-section="architecture">
+                            <h2 class="text-3xl font-bold text-cyan-400 mb-6">Architecture</h2>
+
+                            <div class="mb-8">
+                                <h3 class="text-xl font-bold text-gray-100 mb-4">System Components</h3>
+
+                                <div class="space-y-4">
+                                    <div class="bg-gray-800/40 p-5 rounded-lg border border-gray-700/60">
+                                        <h4 class="text-cyan-400 font-bold mb-2">C++ Risk Engine</h4>
+                                        <p class="text-sm text-gray-300 mb-3">Core computational layer for
+                                            high-performance calculations</p>
+                                        <ul class="text-sm text-gray-400 space-y-1">
+                                            <li>• Option pricing algorithms (Black-Scholes, Binomial, Jump Diffusion)
+                                            </li>
+                                            <li>• Greeks calculation (Delta, Gamma, Vega, Theta, Rho)</li>
+                                            <li>• Monte Carlo VaR simulation</li>
+                                            <li>• Portfolio aggregation logic</li>
+                                        </ul>
+                                    </div>
+
+                                    <div class="bg-gray-800/40 p-5 rounded-lg border border-gray-700/60">
+                                        <h4 class="text-cyan-400 font-bold mb-2">Python API Layer</h4>
+                                        <p class="text-sm text-gray-300 mb-3">Flask-based REST API with pybind11
+                                            bindings</p>
+                                        <ul class="text-sm text-gray-400 space-y-1">
+                                            <li>• RESTful endpoint definitions</li>
+                                            <li>• Request validation and error handling</li>
+                                            <li>• Market data fetching from Yahoo Finance</li>
+                                            <li>• SQLite caching layer</li>
+                                        </ul>
+                                    </div>
+
+                                    <div class="bg-gray-800/40 p-5 rounded-lg border border-gray-700/60">
+                                        <h4 class="text-cyan-400 font-bold mb-2">JavaScript Dashboard</h4>
+                                        <p class="text-sm text-gray-300 mb-3">Interactive web interface for portfolio
+                                            management</p>
+                                        <ul class="text-sm text-gray-400 space-y-1">
+                                            <li>• Portfolio builder with live market data</li>
+                                            <li>• Risk metrics visualization</li>
+                                            <li>• Real-time API health monitoring</li>
+                                            <li>• Responsive design with Tailwind CSS</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="mb-8">
+                                <h3 class="text-xl font-bold text-gray-100 mb-4">Data Flow</h3>
+                                <div class="code-block">
+                                    1. User Action (Dashboard)
+                                    ↓
+                                    2. HTTP Request (JSON)
+                                    ↓
+                                    3. Flask Endpoint Handler
+                                    ↓
+                                    4. Market Data Check (Cache/YFinance)
+                                    ↓
+                                    5. Python-to-C++ Bridge (pybind11)
+                                    ↓
+                                    6. C++ Risk Calculation
+                                    ↓
+                                    7. Results Returned (JSON)
+                                    ↓
+                                    8. Dashboard Update</div>
+                            </div>
+
+                            <div>
+                                <h3 class="text-xl font-bold text-gray-100 mb-4">Performance Characteristics</h3>
+                                <div class="responsive-table-container">
+                                    <table>
+                                        <thead>
+                                            <tr>
+                                                <th>Operation</th>
+                                                <th>Latency</th>
+                                                <th>Notes</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <td>Single option pricing</td>
+                                                <td>&lt; 1 microsecond</td>
+                                                <td>Black-Scholes analytical</td>
+                                            </tr>
+                                            <tr>
+                                                <td>Portfolio (100 options)</td>
+                                                <td>&lt; 1 millisecond</td>
+                                                <td>Full Greeks calculation</td>
+                                            </tr>
+                                            <tr>
+                                                <td>VaR (100K simulations)</td>
+                                                <td>&lt; 1 second</td>
+                                                <td>Monte Carlo 95% confidence</td>
+                                            </tr>
+                                            <tr>
+                                                <td>Market data fetch</td>
+                                                <td>1-3 seconds</td>
+                                                <td>Yahoo Finance API call</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- API REFERENCE SECTION -->
+                        <div class="section-content" data-section="api">
+                            <h2 class="text-3xl font-bold text-cyan-400 mb-6">API Reference</h2>
+
+                            <div class="mb-8">
+                                <p class="text-gray-300 mb-4">
+                                    Complete REST API documentation for the Risk Engine.
+                                </p>
+                                <div class="bg-blue-900/20 border border-blue-500/50 rounded-lg p-4">
+                                    <p class="text-blue-300 font-semibold mb-2">Base URL</p>
+                                    <code class="text-sm text-blue-200">http://127.0.0.1:5000</code>
+                                </div>
+                            </div>
+
+                            <div class="mb-8">
+                                <h3 class="text-xl font-bold text-gray-100 mb-4">Health Check</h3>
+                                <span class="badge badge-green mb-4">GET</span>
+                                <code class="text-cyan-400">/health</code>
+
+                                <p class="text-sm text-gray-400 mt-4 mb-3">Check API status and cache information</p>
+
+                                <h4 class="text-sm font-semibold text-gray-300 mb-2">Response (200)</h4>
+                                <div class="code-block">{
+"status": "healthy",
+"service": "quant-risk-engine",
+"version": "3.1",
+"features": [
+"european_options",
+"american_options",
+"multiple_pricing_models",
+"portfolio_analytics",
+"var_calculation",
+"live_market_data"
+],
+"cache_info": {
+"cached_assets": 5,
+"cache_location": "market_data_cache.db"
+}
+}</div>
+                            </div>
+
+                            <div class="mb-8">
+                                <h3 class="text-xl font-bold text-gray-100 mb-4">Price Option</h3>
+                                <span class="badge badge-blue mb-4">POST</span>
+                                <code class="text-cyan-400">/price_option</code>
+
+                                <p class="text-sm text-gray-400 mt-4 mb-3">Calculate option price and Greeks for a
+                                    single instrument</p>
+
+                                <h4 class="text-sm font-semibold text-gray-300 mb-2">Request Body</h4>
+                                <div class="code-block mb-4">{
+"type": "call",
+"strike": 100.0,
+"expiry": 1.0,
+"asset_id": "AAPL",
+"style": "european",
+"pricing_model": "blackscholes",
+"market_data": {
+"spot": 105.0,
+"rate": 0.05,
+"vol": 0.25,
+"dividend": 0.01
+}
+}</div>
+
+                                <h4 class="text-sm font-semibold text-gray-300 mb-2">Response (200)</h4>
+                                <div class="code-block">{
+"price": 12.34,
+"delta": 0.6368,
+"gamma": 0.0178,
+"vega": 37.45,
+"theta": -6.42,
+"rho": 48.23,
+"instrument_type": "EuropeanOption",
+"market_data_auto_fetched": false
+                                    }</div>
+                            </div>
+
+                            <div class="mb-8">
+                                <h3 class="text-xl font-bold text-gray-100 mb-4">Calculate Portfolio Risk</h3>
+                                <span class="badge badge-blue mb-4">POST</span>
+                                <code class="text-cyan-400">/calculate_risk</code>
+
+                                <p class="text-sm text-gray-400 mt-4 mb-3">Calculate comprehensive risk metrics for a
+                                    portfolio</p>
+
+                                <h4 class="text-sm font-semibold text-gray-300 mb-2">Request Body</h4>
+                                <div class="code-block mb-4">{
+"portfolio": [
+{
+"type": "call",
+"strike": 100.0,
+"expiry": 1.0,
+"asset_id": "AAPL",
+"quantity": 100,
+"style": "european"
+}
+],
+"market_data": {},
+"var_parameters": {
+"simulations": 100000,
+"confidence": 0.95,
+"time_horizon": 1.0
+}
+}</div>
+
+                                <h4 class="text-sm font-semibold text-gray-300 mb-2">Response (200)</h4>
+                                <div class="code-block">{
+"total_pv": 123456.78,
+"total_delta": 0.6543,
+"total_gamma": 0.0234,
+"total_vega": 456.78,
+"total_theta": -12.34,
+"value_at_risk_95": -5678.90,
+"value_at_risk_99": -7890.12,
+"expected_shortfall_95": -6543.21,
+"portfolio_size": 1
+}</div>
+                            </div>
+
+                            <div class="mb-8">
+                                <h3 class="text-xl font-bold text-gray-100 mb-4">Update Market Data</h3>
+                                <span class="badge badge-blue mb-4">POST</span>
+                                <code class="text-cyan-400">/update_market_data</code>
+
+                                <p class="text-sm text-gray-400 mt-4 mb-3">Fetch live market data from Yahoo Finance</p>
+
+                                <h4 class="text-sm font-semibold text-gray-300 mb-2">Request Body</h4>
+                                <div class="code-block mb-4">{
+"tickers": ["AAPL", "GOOGL", "MSFT"],
+"force_refresh": false
+}</div>
+
+                                <h4 class="text-sm font-semibold text-gray-300 mb-2">Response (200)</h4>
+                                <div class="code-block">{
+"success": true,
+"updated": {
+"AAPL": {
+"asset_id": "AAPL",
+"spot": 175.43,
+"vol": 0.2847,
+"rate": 0.0445,
+"dividend": 0.0052,
+"last_updated": "2025-10-25T14:30:00.123456",
+"source": "yfinance"
+}
+},
+"failed": [],
+"summary": {
+"total_requested": 3,
+"successful": 3,
+"failed": 0
+}
+}</div>
+                            </div>
+
+                            <div>
+                                <h3 class="text-xl font-bold text-gray-100 mb-4">Error Responses</h3>
+                                <p class="text-sm text-gray-400 mb-3">All endpoints follow consistent error format</p>
+
+                                <h4 class="text-sm font-semibold text-gray-300 mb-2">400 Bad Request</h4>
+                                <div class="code-block mb-4">
+{
+"error": "Validation error: Portfolio item 0: missing required field 'strike'"
+}</div>
+
+                                <h4 class="text-sm font-semibold text-gray-300 mb-2">500 Internal Server Error</h4>
+                                <div class="code-block">
+{
+"error": "Runtime error: Risk calculation produced invalid results"
+}</div>
+                            </div>
+                        </div>
+
+                        <!-- PRICING MODELS SECTION -->
+                        <div class="section-content" data-section="pricing">
+                            <h2 class="text-3xl font-bold text-cyan-400 mb-6">Pricing Models</h2>
+
+                            <div class="mb-8">
+                                <h3 class="text-xl font-bold text-gray-100 mb-4">Black-Scholes Model</h3>
+                                <span class="badge badge-blue mb-4">Analytical</span>
+                                <span class="badge badge-green mb-4">European Only</span>
+
+                                <p class="text-gray-300 mb-4">
+                                    Analytical solution for European options pricing. Fastest method with exact Greeks.
+                                </p>
+
+                                <h4 class="text-sm font-semibold text-gray-300 mb-2">Key Assumptions</h4>
+                                <ul class="text-sm text-gray-400 space-y-1 mb-4">
+                                    <li>• Constant volatility</li>
+                                    <li>• Log-normal price distribution</li>
+                                    <li>• No transaction costs</li>
+                                    <li>• Continuous trading</li>
+                                    <li>• Constant risk-free rate</li>
+                                </ul>
+
+                                <h4 class="text-sm font-semibold text-gray-300 mb-2">Usage Example</h4>
+                                <div class="code-block">
+{
+"pricing_model": "blackscholes",
+"type": "call",
+"strike": 100,
+"expiry": 1.0,
+"style": "european"
+}</div>
+                            </div>
+
+                            <div class="mb-8">
+                                <h3 class="text-xl font-bold text-gray-100 mb-4">Binomial Tree Model</h3>
+                                <span class="badge badge-purple mb-4">Numerical</span>
+                                <span class="badge badge-green mb-4">American & European</span>
+
+                                <p class="text-gray-300 mb-4">
+                                    Discrete-time numerical method that handles early exercise. Converges to
+                                    Black-Scholes as steps increase.
+                                </p>
+
+                                <h4 class="text-sm font-semibold text-gray-300 mb-2">Key Features</h4>
+                                <ul class="text-sm text-gray-400 space-y-1 mb-4">
+                                    <li>• Handles American-style early exercise</li>
+                                    <li>• Configurable time steps (default: 100)</li>
+                                    <li>• Accuracy improves with more steps</li>
+                                    <li>• Suitable for discrete dividends</li>
+                                </ul>
+
+                                <div>
+                                    <h4 class="text-sm font-semibold text-gray-300 mb-2">Accuracy vs Performance</h4>
+                                    <table class="mb-4">
+                                        <thead>
+                                            <tr>
+                                                <th>Steps</th>
+                                                <th>Error</th>
+                                                <th>Time</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <td>100</td>
+                                                <td>&plusmn;0.1%</td>
+                                                <td>&lt; 1ms</td>
+                                            </tr>
+                                            <tr>
+                                                <td>1000</td>
+                                                <td>&plusmn;0.01%</td>
+                                                <td>~5ms</td>
+                                            </tr>
+                                            <tr>
+                                                <td>10000</td>
+                                                <td>&plusmn;0.001%</td>
+                                                <td>~50ms</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                                <h4 class="text-sm font-semibold text-gray-300 mb-2">Usage Example</h4>
+                                <div class="code-block">
+{
+"pricing_model": "binomial",
+"binomial_steps": 1000,
+"type": "put",
+"strike": 95,
+"expiry": 0.5,
+"style": "american"
+}</div>
+                            </div>
+
+                            <div>
+                                <h3 class="text-xl font-bold text-gray-100 mb-4">Merton Jump Diffusion Model</h3>
+                                <span class="badge badge-red mb-4">Advanced</span>
+                                <span class="badge badge-green mb-4">European Only</span>
+
+                                <p class="text-gray-300 mb-4">
+                                    Extension of Black-Scholes that incorporates discontinuous price jumps for modeling
+                                    extreme events.
+                                </p>
+
+                                <div>
+                                    <h4 class="text-sm font-semibold text-gray-300 mb-2">Jump Parameters</h4>
+                                    <table class="mb-4">
+                                        <thead>
+                                            <tr>
+                                                <th>Parameter</th>
+                                                <th>Description</th>
+                                                <th>Typical Range</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <td><code>lambda</code></td>
+                                                <td>Jump intensity (jumps per year)</td>
+                                                <td>0.5 - 5.0</td>
+                                            </tr>
+                                            <tr>
+                                                <td><code>mean</code></td>
+                                                <td>Mean jump size</td>
+                                                <td>-0.2 to 0.2</td>
+                                            </tr>
+                                            <tr>
+                                                <td><code>vol</code></td>
+                                                <td>Jump size volatility</td>
+                                                <td>0.05 - 0.3</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+
+                                <h4 class="text-sm font-semibold text-gray-300 mb-2">Usage Example</h4>
+                                <div class="code-block">
+{
+"pricing_model": "jumpdiffusion",
+"jump_parameters": {
+"lambda": 2.0,
+"mean": -0.05,
+"vol": 0.15
+},
+"type": "call",
+"strike": 100,
+"expiry": 1.0,
+"style": "european"
+}</div>
+                            </div>
+                        </div>
+
+                        <!-- RISK METRICS SECTION -->
+                        <div class="section-content" data-section="risk">
+                            <h2 class="text-3xl font-bold text-cyan-400 mb-6">Risk Metrics</h2>
+
+                            <div class="mb-8">
+                                <h3 class="text-xl font-bold text-gray-100 mb-4">Greeks</h3>
+                                <p class="text-gray-300 mb-4">
+                                    First and second-order derivatives measuring option price sensitivity to various
+                                    factors.
+                                </p>
+
+                                <div class="space-y-4">
+                                    <div class="bg-gray-800/40 p-5 rounded-lg border border-gray-700/60">
+                                        <h4 class="text-cyan-400 font-bold mb-2">Delta (Δ)</h4>
+                                        <p class="text-sm text-gray-300 mb-2">Rate of change of option price with
+                                            respect to underlying asset price</p>
+                                        <p class="text-xs text-gray-400">Range: 0 to 1 (calls), -1 to 0 (puts)</p>
+                                        <p class="text-xs text-gray-400">Use: Hedge ratio, directional exposure</p>
+                                    </div>
+
+                                    <div class="bg-gray-800/40 p-5 rounded-lg border border-gray-700/60">
+                                        <h4 class="text-cyan-400 font-bold mb-2">Gamma (Γ)</h4>
+                                        <p class="text-sm text-gray-300 mb-2">Rate of change of delta with respect to
+                                            underlying asset price</p>
+                                        <p class="text-xs text-gray-400">Range: Always positive</p>
+                                        <p class="text-xs text-gray-400">Use: Delta hedging stability, convexity</p>
+                                    </div>
+
+                                    <div class="bg-gray-800/40 p-5 rounded-lg border border-gray-700/60">
+                                        <h4 class="text-cyan-400 font-bold mb-2">Vega (ν)</h4>
+                                        <p class="text-sm text-gray-300 mb-2">Rate of change of option price with
+                                            respect to volatility</p>
+                                        <p class="text-xs text-gray-400">Range: Always positive</p>
+                                        <p class="text-xs text-gray-400">Use: Volatility exposure, vega hedging</p>
+                                    </div>
+
+                                    <div class="bg-gray-800/40 p-5 rounded-lg border border-gray-700/60">
+                                        <h4 class="text-cyan-400 font-bold mb-2">Theta (Θ)</h4>
+                                        <p class="text-sm text-gray-300 mb-2">Rate of change of option price with
+                                            respect to time</p>
+                                        <p class="text-xs text-gray-400">Range: Usually negative</p>
+                                        <p class="text-xs text-gray-400">Use: Time decay, carry costs</p>
+                                    </div>
+
+                                    <div class="bg-gray-800/40 p-5 rounded-lg border border-gray-700/60">
+                                        <h4 class="text-cyan-400 font-bold mb-2">Rho (ρ)</h4>
+                                        <p class="text-sm text-gray-300 mb-2">Rate of change of option price with
+                                            respect to interest rate</p>
+                                        <p class="text-xs text-gray-400">Range: Positive for calls, negative for puts
+                                        </p>
+                                        <p class="text-xs text-gray-400">Use: Interest rate sensitivity</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="mb-8">
+                                <h3 class="text-xl font-bold text-gray-100 mb-4">Value at Risk (VaR)</h3>
+                                <p class="text-gray-300 mb-4">
+                                    Statistical measure of potential loss over a specified time horizon at a given
+                                    confidence level.
+                                </p>
+
+                                <h4 class="text-sm font-semibold text-gray-300 mb-2">Monte Carlo Simulation</h4>
+                                <p class="text-sm text-gray-400 mb-4">
+                                    Generate thousands of random price paths to estimate portfolio value distribution.
+                                </p>
+
+                                <div>
+                                    <h4 class="text-sm font-semibold text-gray-300 mb-2">Configuration Parameters</h4>
+                                    <table class="mb-4">
+                                        <thead>
+                                            <tr>
+                                                <th>Parameter</th>
+                                                <th>Default</th>
+                                                <th>Description</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <td><code>simulations</code></td>
+                                                <td>100,000</td>
+                                                <td>Number of Monte Carlo paths</td>
+                                            </tr>
+                                            <tr>
+                                                <td><code>confidence</code></td>
+                                                <td>0.95</td>
+                                                <td>Confidence level (95% or 99%)</td>
+                                            </tr>
+                                            <tr>
+                                                <td><code>time_horizon</code></td>
+                                                <td>1.0</td>
+                                                <td>Time horizon in days</td>
+                                            </tr>
+                                            <tr>
+                                                <td><code>seed</code></td>
+                                                <td>random</td>
+                                                <td>Random seed for reproducibility</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+
+                                <div class="responsive-table-container">
+                                    <h4 class="text-sm font-semibold text-gray-300 mb-2">Accuracy vs Performance</h4>
+                                    <table>
+                                        <thead>
+                                            <tr>
+                                                <th>Simulations</th>
+                                                <th>Standard Error</th>
+                                                <th>Time</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <td>10,000</td>
+                                                <td>~1%</td>
+                                                <td>&lt; 100ms</td>
+                                            </tr>
+                                            <tr>
+                                                <td>100,000</td>
+                                                <td>~0.3%</td>
+                                                <td>~1s</td>
+                                            </tr>
+                                            <tr>
+                                                <td>1,000,000</td>
+                                                <td>~0.1%</td>
+                                                <td>~10s</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+
+                            <div>
+                                <h3 class="text-xl font-bold text-gray-100 mb-4">Expected Shortfall (CVaR)</h3>
+                                <p class="text-gray-300 mb-4">
+                                    Average loss beyond the VaR threshold. More conservative than VaR as it considers
+                                    tail risk.
+                                </p>
+
+                                <div class="bg-yellow-900/20 border border-yellow-500/50 rounded-lg p-4">
+                                    <p class="text-yellow-300 font-semibold mb-2">Interpretation</p>
+                                    <p class="text-sm text-yellow-200">
+                                        If 95% VaR is $10,000, and 95% CVaR is $15,000, this means:
+                                        In the worst 5% of cases, the average loss is $15,000.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- MARKET DATA SECTION -->
+                        <div class="section-content" data-section="market-data">
+                            <h2 class="text-3xl font-bold text-cyan-400 mb-6">Market Data Integration</h2>
+
+                            <div class="mb-8">
+                                <h3 class="text-xl font-bold text-gray-100 mb-4">Data Sources</h3>
+                                <p class="text-gray-300 mb-4">
+                                    Live market data automatically fetched from Yahoo Finance with intelligent caching.
+                                </p>
+
+                                <div class="space-y-4">
+                                    <div class="bg-gray-800/40 p-5 rounded-lg border border-gray-700/60">
+                                        <h4 class="text-cyan-400 font-bold mb-2">Spot Price</h4>
+                                        <p class="text-sm text-gray-400">Current market price or last closing price if
+                                            market closed</p>
+                                    </div>
+
+                                    <div class="bg-gray-800/40 p-5 rounded-lg border border-gray-700/60">
+                                        <h4 class="text-cyan-400 font-bold mb-2">Volatility</h4>
+                                        <p class="text-sm text-gray-400">Calculated from 252 days historical data using
+                                            log returns</p>
+                                        <p class="text-xs text-gray-500 mt-1">Formula: σ = std(log(P_t / P_{t-1})) ×
+                                            sqrt(252)</p>
+                                    </div>
+
+                                    <div class="bg-gray-800/40 p-5 rounded-lg border border-gray-700/60">
+                                        <h4 class="text-cyan-400 font-bold mb-2">Risk-Free Rate</h4>
+                                        <p class="text-sm text-gray-400">10-year US Treasury rate (^TNX), default 4.5%
+                                            if unavailable</p>
+                                    </div>
+
+                                    <div class="bg-gray-800/40 p-5 rounded-lg border border-gray-700/60">
+                                        <h4 class="text-cyan-400 font-bold mb-2">Dividend Yield</h4>
+                                        <p class="text-sm text-gray-400">Annual dividend yield from Yahoo Finance,
+                                            default 0.0</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="mb-8">
+                                <h3 class="text-xl font-bold text-gray-100 mb-4">Caching System</h3>
+                                <p class="text-gray-300 mb-4">
+                                    SQLite-based cache reduces API calls and improves response times.
+                                </p>
+
+                                <div>
+                                    <h4 class="text-sm font-semibold text-gray-300 mb-2">Cache Behavior</h4>
+                                    <table class="mb-4">
+                                        <thead>
+                                            <tr>
+                                                <th>Scenario</th>
+                                                <th>Action</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <td>Data age &lt; 24 hours</td>
+                                                <td>Return cached data (no network request)</td>
+                                            </tr>
+                                            <tr>
+                                                <td>Data age &gt; 24 hours</td>
+                                                <td>Fetch fresh data, update cache</td>
+                                            </tr>
+                                            <tr>
+                                                <td>Asset not in cache</td>
+                                                <td>Fetch from YFinance, store in cache</td>
+                                            </tr>
+                                            <tr>
+                                                <td>force_refresh = true</td>
+                                                <td>Always fetch fresh data, bypass cache</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                                <h4 class="text-sm font-semibold text-gray-300 mb-2">Configuration</h4>
+                                <div class="code-block">
+                                    # Environment Variables
+MARKET_DATA_CACHE_HOURS=24
+DEFAULT_RISK_FREE_RATE=0.045
+MARKET_DATA_CACHE_PATH=./market_data_cache.db</div>
+                            </div>
+
+                            <div class="mb-8">
+                                <h3 class="text-xl font-bold text-gray-100 mb-4">Usage Patterns</h3>
+
+                                <h4 class="text-sm font-semibold text-gray-300 mb-2">Automatic Fetching</h4>
+                                <p class="text-sm text-gray-400 mb-3">Provide empty market_data object to trigger
+                                    auto-fetch</p>
+                                <div class="code-block mb-4">{
+"portfolio": [...],
+"market_data": {} // Auto-fetches missing data
+                                    }</div>
+
+                                <h4 class="text-sm font-semibold text-gray-300 mb-2">Manual Data</h4>
+                                <p class="text-sm text-gray-400 mb-3">Override with your own market data</p>
+                                <div class="code-block mb-4">
+{
+"market_data": {
+"AAPL": {
+"spot": 175.0,
+"vol": 0.28,
+"rate": 0.045,
+"dividend": 0.005
+}
+}
+}</div>
+
+                                <h4 class="text-sm font-semibold text-gray-300 mb-2">Bulk Update</h4>
+                                <p class="text-sm text-gray-400 mb-3">Pre-populate cache for multiple assets</p>
+                                <div class="code-block">curl -X POST /update_market_data \
+-d '{"tickers": ["AAPL", "GOOGL", "MSFT"], "force_refresh": true}'</div>
+                            </div>
+
+                            <div>
+                                <h3 class="text-xl font-bold text-gray-100 mb-4">Error Handling</h3>
+                                <p class="text-gray-300 mb-4">
+                                    Graceful degradation when market data unavailable.
+                                </p>
+
+                                <div>
+                                    <table>
+                                        <thead>
+                                            <tr>
+                                                <th>Error</th>
+                                                <th>Cause</th>
+                                                <th>Solution</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <td>No price data</td>
+                                                <td>Invalid/delisted ticker</td>
+                                                <td>Verify on finance.yahoo.com</td>
+                                            </tr>
+                                            <tr>
+                                                <td>Connection timeout</td>
+                                                <td>Network issues</td>
+                                                <td>Check connectivity, retry</td>
+                                            </tr>
+                                            <tr>
+                                                <td>Insufficient history</td>
+                                                <td>Recent IPO</td>
+                                                <td>Manually specify volatility</td>
+                                            </tr>
+                                            <tr>
+                                                <td>Rate limiting</td>
+                                                <td>Too many requests</td>
+                                                <td>Use caching, batch requests</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- DEPLOYMENT SECTION -->
+                        <div class="section-content" data-section="deployment">
+                            <h2 class="text-3xl font-bold text-cyan-400 mb-6">Deployment</h2>
+
+                            <div class="mb-8">
+                                <h3 class="text-xl font-bold text-gray-100 mb-4">Docker Deployment</h3>
+                                <p class="text-gray-300 mb-4">
+                                    Containerized deployment for consistent environments.
+                                </p>
+
+                                <h4 class="text-sm font-semibold text-gray-300 mb-2">Using Pre-Built Image</h4>
+                                <div class="code-block mb-4"># Pull latest image
+docker pull quantenthusiasts/risk-engine:latest
+
+# Run container
+docker run -d \
+--name risk-engine \
+-p 5000:5000 \
+-e FLASK_ENV=production \
+-v $(pwd)/data:/app/data \
+quantenthusiasts/risk-engine:latest</div>
+
+                                <h4 class="text-sm font-semibold text-gray-300 mb-2">Docker Compose</h4>
+                                <div class="code-block">
+version: '3.8'
+services:
+api:
+build: .
+ports:
+- "5000:5000"
+environment:
+- FLASK_ENV=production
+- MARKET_DATA_CACHE_HOURS=24
+volumes:
+- ./data:/app/data
+restart: unless-stopped</div>
+                            </div>
+
+                            <div class="mb-8">
+                                <h3 class="text-xl font-bold text-gray-100 mb-4">Cloud Platforms</h3>
+
+                                <div class="space-y-4">
+                                    <div class="bg-gray-800/40 p-5 rounded-lg border border-gray-700/60">
+                                        <h4 class="text-cyan-400 font-bold mb-2">AWS ECS</h4>
+                                        <p class="text-sm text-gray-400">Deploy using Elastic Container Service with
+                                            Fargate</p>
+                                        <div class="code-block text-xs mt-2">
+aws ecs create-service \
+--cluster risk-engine-cluster \
+--service-name risk-engine-service \
+--task-definition risk-engine \
+--desired-count 2 \
+--launch-type FARGATE</div>
+                                    </div>
+
+                                    <div class="bg-gray-800/40 p-5 rounded-lg border border-gray-700/60">
+                                        <h4 class="text-cyan-400 font-bold mb-2">Google Cloud Run</h4>
+                                        <p class="text-sm text-gray-400">Serverless container deployment</p>
+                                        <div class="code-block text-xs mt-2">
+gcloud run deploy risk-engine \
+--image gcr.io/PROJECT-ID/risk-engine \
+--platform managed \
+--allow-unauthenticated</div>
+                                    </div>
+
+                                    <div class="bg-gray-800/40 p-5 rounded-lg border border-gray-700/60">
+                                        <h4 class="text-cyan-400 font-bold mb-2">DigitalOcean</h4>
+                                        <p class="text-sm text-gray-400">App Platform deployment</p>
+                                        <div class="code-block text-xs mt-2">
+doctl apps create --spec app.yaml
+</div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="mb-8">
+                                <h3 class="text-xl font-bold text-gray-100 mb-4">Production Configuration</h3>
+
+                                <h4 class="text-sm font-semibold text-gray-300 mb-2">Environment Variables</h4>
+                                <div class="code-block mb-4"># Application
+FLASK_ENV=production
+SECRET_KEY=your-secret-key
+
+# Market Data
+MARKET_DATA_CACHE_HOURS=24
+DEFAULT_RISK_FREE_RATE=0.045
+
+# Performance
+WORKERS=4
+MAX_CONTENT_LENGTH=16777216
+
+# Logging
+LOG_LEVEL=INFO
+LOG_FILE=/app/logs/risk-engine.log</div>
+
+                                <h4 class="text-sm font-semibold text-gray-300 mb-2">Security Best Practices</h4>
+                                <ul class="text-sm text-gray-400 space-y-2">
+                                    <li>• Implement API authentication (API keys or OAuth2)</li>
+                                    <li>• Enable HTTPS with TLS certificates</li>
+                                    <li>• Configure rate limiting per IP/API key</li>
+                                    <li>• Use environment variables for secrets</li>
+                                    <li>• Enable CORS only for trusted domains</li>
+                                    <li>• Set up logging and monitoring</li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        <!-- TROUBLESHOOTING SECTION -->
+                        <div class="section-content" data-section="troubleshooting">
+                            <h2 class="text-3xl font-bold text-cyan-400 mb-6">Troubleshooting</h2>
+
+                            <div class="mb-8">
+                                <h3 class="text-xl font-bold text-gray-100 mb-4">Build Issues</h3>
+
+                                <div class="space-y-4">
+                                    <div class="bg-gray-800/40 p-5 rounded-lg border border-gray-700/60">
+                                        <h4 class="text-red-400 font-bold mb-2">CMake Cannot Find Compiler</h4>
+                                        <p class="text-sm text-gray-400 mb-2">Error: CMAKE_CXX_COMPILER not set</p>
+                                        <p class="text-sm font-semibold text-gray-300 mb-2">Solution:</p>
+                                        <div class="code-block text-xs">
+# Install compiler
+sudo apt install build-essential # Linux
+xcode-select --install # macOS
+
+# Or specify explicitly
+cmake -DCMAKE_CXX_COMPILER=g++ ..</div>
+                                    </div>
+
+                                    <div class="bg-gray-800/40 p-5 rounded-lg border border-gray-700/60">
+                                        <h4 class="text-red-400 font-bold mb-2">pybind11 Not Found</h4>
+                                        <p class="text-sm text-gray-400 mb-2">Error: Could not find package
+                                            configuration file</p>
+                                        <p class="text-sm font-semibold text-gray-300 mb-2">Solution:</p>
+                                        <div class="code-block text-xs">
+# Install in virtual environment
+cd python_api
+source venv/bin/activate
+pip install pybind11</div>
+                                    </div>
+
+                                    <div class="bg-gray-800/40 p-5 rounded-lg border border-gray-700/60">
+                                        <h4 class="text-red-400 font-bold mb-2">C++17 Not Supported</h4>
+                                        <p class="text-sm text-gray-400 mb-2">Error: invalid value 'c++17' in
+                                            '-std=c++17'</p>
+                                        <p class="text-sm font-semibold text-gray-300 mb-2">Solution:</p>
+                                        <div class="code-block text-xs">
+# Update compiler
+sudo apt install gcc-11 g++-11
+
+# Or use Clang
+cmake -DCMAKE_CXX_COMPILER=clang++ ..</div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="mb-8">
+                                <h3 class="text-xl font-bold text-gray-100 mb-4">Runtime Issues</h3>
+
+                                <div class="space-y-4">
+                                    <div class="bg-gray-800/40 p-5 rounded-lg border border-gray-700/60">
+                                        <h4 class="text-red-400 font-bold mb-2">Module Not Found Error</h4>
+                                        <p class="text-sm text-gray-400 mb-2">Error: ModuleNotFoundError: No module
+                                            named 'quant_risk_engine'</p>
+                                        <p class="text-sm font-semibold text-gray-300 mb-2">Solution:</p>
+                                        <div class="code-block text-xs">
+# Set PYTHONPATH
+export PYTHONPATH="$PWD/cpp_engine/install/lib:$PYTHONPATH"
+
+# Verify module exists
+ls -la cpp_engine/install/lib/quant_risk_engine*.so</div>
+                                    </div>
+
+                                    <div class="bg-gray-800/40 p-5 rounded-lg border border-gray-700/60">
+                                        <h4 class="text-red-400 font-bold mb-2">Port Already in Use</h4>
+                                        <p class="text-sm text-gray-400 mb-2">Error: Address already in use (port 5000)
+                                        </p>
+                                        <p class="text-sm font-semibold text-gray-300 mb-2">Solution:</p>
+                                        <div class="code-block text-xs">
+# Use different port
+python -m flask --app app run --port 5050
+
+# Or kill process (macOS/Linux)
+kill $(lsof -ti:5000)
+
+# Disable AirPlay Receiver (macOS)
+# System Preferences → General → AirPlay Receiver</div>
+                                    </div>
+
+                                    <div class="bg-gray-800/40 p-5 rounded-lg border border-gray-700/60">
+                                        <h4 class="text-red-400 font-bold mb-2">Segmentation Fault</h4>
+                                        <p class="text-sm text-gray-400 mb-2">Error: Segmentation fault (core dumped)
+                                        </p>
+                                        <p class="text-sm font-semibold text-gray-300 mb-2">Solution:</p>
+                                        <div class="code-block text-xs">
+# Enable debug mode
+cd cpp_engine/build
+cmake .. -DCMAKE_BUILD_TYPE=Debug
+cmake --build .
+
+# Run with debugger
+gdb ./bin/risk-engine
+(gdb) run
+(gdb) bt # backtrace on crash</div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="mb-8">
+                                <h3 class="text-xl font-bold text-gray-100 mb-4">API Issues</h3>
+
+                                <div class="space-y-4">
+                                    <div class="bg-gray-800/40 p-5 rounded-lg border border-gray-700/60">
+                                        <h4 class="text-red-400 font-bold mb-2">400 Bad Request</h4>
+                                        <p class="text-sm text-gray-400 mb-2">Error: Validation error - missing required
+                                            field</p>
+                                        <p class="text-sm font-semibold text-gray-300 mb-2">Solution:</p>
+                                        <ul class="text-xs text-gray-400 space-y-1 mt-2">
+                                            <li>• Verify all required fields present</li>
+                                            <li>• Check data types (float vs string)</li>
+                                            <li>• Validate JSON syntax with jq</li>
+                                            <li>• Ensure positive values where required</li>
+                                        </ul>
+                                    </div>
+
+                                    <div class="bg-gray-800/40 p-5 rounded-lg border border-gray-700/60">
+                                        <h4 class="text-red-400 font-bold mb-2">500 Internal Server Error</h4>
+                                        <p class="text-sm text-gray-400 mb-2">Error: Risk calculation produced invalid
+                                            results</p>
+                                        <p class="text-sm font-semibold text-gray-300 mb-2">Solution:</p>
+                                        <div class="code-block text-xs">
+# Run Flask in debug mode
+python -m flask --app app run --debug
+
+# Check for NaN/Inf values
+# Verify market data quality
+# Test with minimal portfolio first</div>
+                                    </div>
+
+                                    <div class="bg-gray-800/40 p-5 rounded-lg border border-gray-700/60">
+                                        <h4 class="text-red-400 font-bold mb-2">CORS Errors</h4>
+                                        <p class="text-sm text-gray-400 mb-2">Error: Blocked by CORS policy</p>
+                                        <p class="text-sm font-semibold text-gray-300 mb-2">Solution:</p>
+                                        <div class="code-block text-xs">
+# Verify flask-cors installed
+pip list | grep flask-cors
+
+# Serve dashboard via HTTP (not file://)
+cd js_dashboard
+npx serve .</div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="mb-8">
+                                <h3 class="text-xl font-bold text-gray-100 mb-4">Market Data Issues</h3>
+
+                                <div class="space-y-4">
+                                    <div class="bg-gray-800/40 p-5 rounded-lg border border-gray-700/60">
+                                        <h4 class="text-red-400 font-bold mb-2">Failed to Fetch Data</h4>
+                                        <p class="text-sm text-gray-400 mb-2">Error: No price data available</p>
+                                        <p class="text-sm font-semibold text-gray-300 mb-2">Solutions:</p>
+                                        <ul class="text-xs text-gray-400 space-y-1 mt-2">
+                                            <li>• Verify ticker on finance.yahoo.com</li>
+                                            <li>• Check internet connectivity</li>
+                                            <li>• Try force_refresh: true</li>
+                                            <li>• Provide data manually as fallback</li>
+                                        </ul>
+                                    </div>
+
+                                    <div class="bg-gray-800/40 p-5 rounded-lg border border-gray-700/60">
+                                        <h4 class="text-red-400 font-bold mb-2">Volatility Seems Incorrect</h4>
+                                        <p class="text-sm text-gray-400 mb-2">Returned volatility differs from expected
+                                        </p>
+                                        <p class="text-sm font-semibold text-gray-300 mb-2">Solution:</p>
+                                        <div class="code-block text-xs">
+# Manually specify volatility
+{
+"market_data": {
+"AAPL": {
+"spot": 175.0,
+"vol": 0.28, // Override
+"rate": 0.045
+}
+}
+}</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <script>
+                // ========================================
+                // STATE MANAGEMENT
+                // ========================================
+                const state = {
+                    activeSection: 'overview',
+                    scrollPositions: {},
+                    copyButtonTimers: new Map(),
+                    isTransitioning: false
+                };
+
+                // ========================================
+                // NAVIGATION SYSTEM
+                // ========================================
+                const navigationManager = {
+                    init() {
+                        this.navItems = document.querySelectorAll('.nav-item');
+                        this.sections = document.querySelectorAll('.section-content');
+                        this.contentArea = document.getElementById('content-area');
+
+                        this.setupNavigation();
+                        this.setupKeyboardNavigation();
+                        this.restoreScrollPosition();
+                    },
+
+                    setupNavigation() {
+                        this.navItems.forEach(item => {
+                            item.addEventListener('click', (e) => this.handleNavClick(e, item));
+                        });
+                    },
+
+                    handleNavClick(e, item) {
+                        if (state.isTransitioning) return;
+
+                        const targetSection = item.getAttribute('data-section');
+                        if (targetSection === state.activeSection) return;
+
+                        state.scrollPositions[state.activeSection] = this.contentArea.scrollTop;
+                        state.activeSection = targetSection;
+                        state.isTransitioning = true;
+
+                        this.updateActiveNav(item);
+                        this.showSection(targetSection);
+
+                        this.contentArea.scrollTo({
+                            top: 0,
+                            behavior: 'smooth'
+                        });
+
+                        try {
+                            sessionStorage.setItem('activeSection', targetSection);
+                        } catch (e) {
+                            console.warn('sessionStorage not available:', e);
+                        }
+
+                        setTimeout(() => {
+                            state.isTransitioning = false;
+                        }, 500);
+                    },
+
+                    updateActiveNav(activeItem) {
+                        this.navItems.forEach(nav => {
+                            nav.classList.remove('active');
+                            const textEl = nav.querySelector('.font-semibold');
+                            if (textEl) {
+                                textEl.classList.remove('text-cyan-400');
+                            }
+                        });
+
+                        activeItem.classList.add('active');
+                        const textEl = activeItem.querySelector('.font-semibold');
+                        if (textEl) {
+                            textEl.classList.add('text-cyan-400');
+                        }
+                    },
+
+                    showSection(targetSection) {
+                        this.sections.forEach(section => {
+                            const isTarget = section.getAttribute('data-section') === targetSection;
+
+                            if (isTarget) {
+                                section.classList.add('active');
+                                section.style.display = 'block';
+                            } else {
+                                section.classList.remove('active');
+                                setTimeout(() => {
+                                    if (!section.classList.contains('active')) {
+                                        section.style.display = 'none';
+                                    }
+                                }, 300);
+                            }
+                        });
+                    },
+
+                    setupKeyboardNavigation() {
+                        document.addEventListener('keydown', (e) => {
+                            if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+
+                            const activeNav = document.querySelector('.nav-item.active');
+                            if (!activeNav) return;
+
+                            let nextNav = null;
+
+                            if (e.key === 'ArrowDown' || e.key === 'j') {
+                                e.preventDefault();
+                                nextNav = activeNav.nextElementSibling;
+                            } else if (e.key === 'ArrowUp' || e.key === 'k') {
+                                e.preventDefault();
+                                nextNav = activeNav.previousElementSibling;
+                            } else if (e.key === 'Home') {
+                                e.preventDefault();
+                                nextNav = document.querySelector('.nav-item:first-child');
+                            } else if (e.key === 'End') {
+                                e.preventDefault();
+                                nextNav = document.querySelector('.nav-item:last-child');
+                            }
+
+                            if (nextNav && nextNav.classList.contains('nav-item')) {
+                                nextNav.click();
+                                nextNav.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                            }
+                        });
+                    },
+
+                    restoreScrollPosition() {
+                        try {
+                            const saved = sessionStorage.getItem('activeSection');
+                            if (saved && saved !== 'overview') {
+                                const navItem = document.querySelector(`.nav-item[data-section="${saved}"]`);
+                                if (navItem) {
+                                    setTimeout(() => navItem.click(), 100);
+                                }
+                            }
+                        } catch (e) {
+                            console.warn('Could not restore scroll position:', e);
+                        }
+                    }
+                };
+
+                // ========================================
+                // CODE BLOCK ENHANCEMENTS
+                // ========================================
+                const codeBlockManager = {
+                    init() {
+                        this.setupCodeBlocks();
+                    },
+
+                    setupCodeBlocks() {
+                        document.querySelectorAll('.code-block').forEach(block => {
+                            this.enhanceCodeBlock(block);
+                        });
+                    },
+
+                    enhanceCodeBlock(block) {
+                        block.style.position = 'relative';
+
+                        block.addEventListener('mouseenter', () => {
+                            if (!block.querySelector('.copy-button')) {
+                                this.addCopyButton(block);
+                            }
+                        });
+
+                        block.addEventListener('mouseleave', () => {
+                            const copyBtn = block.querySelector('.copy-button');
+                            if (copyBtn && copyBtn.textContent === 'Copy') {
+                                setTimeout(() => {
+                                    if (copyBtn.parentElement && copyBtn.textContent === 'Copy') {
+                                        copyBtn.remove();
+                                    }
+                                }, 200);
+                            }
+                        });
+                    },
+
+                    addCopyButton(block) {
+                        const copyBtn = document.createElement('button');
+                        copyBtn.className = 'copy-button';
+                        copyBtn.textContent = 'Copy';
+                        copyBtn.style.cssText = `
+                    position: absolute;
+                    top: 0.5rem;
+                    right: 0.5rem;
+                    background: rgba(6, 182, 212, 0.2);
+                    color: #06b6d4;
+                    border: 1px solid rgba(6, 182, 212, 0.3);
+                    padding: 0.25rem 0.75rem;
+                    border-radius: 0.375rem;
+                    font-size: 0.75rem;
+                    font-weight: 600;
+                    cursor: pointer;
+                    transition: all 0.2s ease;
+                    z-index: 10;
+                    font-family: 'Inter', sans-serif;
+                `;
+
+                        copyBtn.addEventListener('mouseenter', function () {
+                            if (this.textContent === 'Copy') {
+                                this.style.background = 'rgba(6, 182, 212, 0.3)';
+                                this.style.transform = 'translateY(-1px)';
+                            }
+                        });
+
+                        copyBtn.addEventListener('mouseleave', function () {
+                            if (this.textContent === 'Copy') {
+                                this.style.background = 'rgba(6, 182, 212, 0.2)';
+                                this.style.transform = 'translateY(0)';
+                            }
+                        });
+
+                        copyBtn.addEventListener('click', (e) => {
+                            e.stopPropagation();
+                            this.copyToClipboard(block, copyBtn);
+                        });
+
+                        block.appendChild(copyBtn);
+                    },
+
+                    async copyToClipboard(block, button) {
+                        const text = block.textContent.replace(/Copy|Copied!|✓/g, '').trim();
+
+                        try {
+                            await navigator.clipboard.writeText(text);
+                            this.showCopySuccess(button);
+                        } catch (err) {
+                            this.fallbackCopy(text, button);
+                        }
+                    },
+
+                    fallbackCopy(text, button) {
+                        const textarea = document.createElement('textarea');
+                        textarea.value = text;
+                        textarea.style.position = 'fixed';
+                        textarea.style.opacity = '0';
+                        document.body.appendChild(textarea);
+                        textarea.select();
+
+                        try {
+                            document.execCommand('copy');
+                            this.showCopySuccess(button);
+                        } catch (err) {
+                            console.error('Copy failed:', err);
+                            button.textContent = 'Failed';
+                            button.style.background = 'rgba(239, 68, 68, 0.2)';
+                            button.style.color = '#ef4444';
+                        } finally {
+                            document.body.removeChild(textarea);
+                        }
+                    },
+
+                    showCopySuccess(button) {
+                        button.textContent = '✓ Copied!';
+                        button.style.background = 'rgba(16, 185, 129, 0.2)';
+                        button.style.color = '#10b981';
+                        button.style.borderColor = 'rgba(16, 185, 129, 0.3)';
+
+                        const existingTimer = state.copyButtonTimers.get(button);
+                        if (existingTimer) {
+                            clearTimeout(existingTimer);
+                        }
+
+                        const timer = setTimeout(() => {
+                            if (button.parentElement) {
+                                button.textContent = 'Copy';
+                                button.style.background = 'rgba(6, 182, 212, 0.2)';
+                                button.style.color = '#06b6d4';
+                                button.style.borderColor = 'rgba(6, 182, 212, 0.3)';
+                            }
+                            state.copyButtonTimers.delete(button);
+                        }, 2000);
+
+                        state.copyButtonTimers.set(button, timer);
+                    }
+                };
+
+                // ========================================
+                // INITIALIZATION
+                // ========================================
+                document.addEventListener('DOMContentLoaded', () => {
+                    console.log('🚀 Initializing Quant Enthusiasts Documentation...');
+
+                    try {
+                        document.body.style.opacity = '0';
+                        navigationManager.init();
+                        codeBlockManager.init();
+
+                        setTimeout(() => {
+                            document.body.style.transition = 'opacity 0.5s ease';
+                            document.body.style.opacity = '1';
+                        }, 50);
+
+                        console.log('✅ Documentation system ready');
+                    } catch (error) {
+                        console.error('❌ Initialization error:', error);
+                    }
+                });
+            </script>
+</body>
+
+</html>

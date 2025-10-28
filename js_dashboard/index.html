@@ -1,174 +1,626 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Quant Enthusiasts Risk Engine</title>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Quant Enthusiasts Risk Engine - Live Data</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        @import url("https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap");
+
+        * {
+            -webkit-tap-highlight-color: transparent;
+        }
 
         body {
-            font-family: 'Inter', sans-serif;
-            background: linear-gradient(135deg, #0F172A 0%, #131A35 100%);
-            color: #e5e7eb; 
+            font-family: "Inter", sans-serif;
+            background: #0a0e1a;
+            background-image: radial-gradient(at 0% 0%,
+                    rgba(6, 182, 212, 0.1) 0px,
+                    transparent 50%),
+                radial-gradient(at 100% 0%,
+                    rgba(99, 102, 241, 0.08) 0px,
+                    transparent 50%),
+                radial-gradient(at 100% 100%,
+                    rgba(236, 72, 153, 0.06) 0px,
+                    transparent 50%),
+                radial-gradient(at 0% 100%,
+                    rgba(14, 165, 233, 0.06) 0px,
+                    transparent 50%);
+            color: #e5e7eb;
+            min-height: 100vh;
+            overflow-x: hidden;
         }
 
         .glass-effect {
-            background: rgba(17, 24, 39, 0.6); 
-            backdrop-filter: blur(12px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 1rem; 
+            background: rgba(15, 23, 42, 0.85);
+            backdrop-filter: blur(20px) saturate(180%);
+            -webkit-backdrop-filter: blur(20px) saturate(180%);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 1.25rem;
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37),
+                inset 0 1px 1px 0 rgba(255, 255, 255, 0.05);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .glass-effect::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: linear-gradient(90deg,
+                    transparent,
+                    rgba(6, 182, 212, 0.3) 50%,
+                    transparent);
         }
 
         .metric-card {
-            transition: all 0.3s ease;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .metric-card::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg,
+                    rgba(6, 182, 212, 0.1),
+                    transparent);
+            opacity: 0;
+            transition: opacity 0.4s ease;
+        }
+
+        .metric-card:hover::before {
+            opacity: 1;
         }
 
         .metric-card:hover {
-            transform: translateY(-4px);
-            box-shadow: 0 8px 25px rgba(6, 182, 212, 0.25);
-            border-color: rgba(6, 182, 212, 0.5);
-        }
-
-        .pulse-animation {
-            animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
-        }
-
-        @keyframes pulse {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.5; }
+            transform: translateY(-6px) scale(1.02);
+            box-shadow: 0 20px 40px rgba(6, 182, 212, 0.3),
+                0 0 0 1px rgba(6, 182, 212, 0.5),
+                inset 0 1px 0 rgba(255, 255, 255, 0.1);
+            border-color: rgba(6, 182, 212, 0.6);
         }
 
         .fade-in {
-            animation: fadeIn 0.5s ease-in;
+            animation: fadeInUp 0.6s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
 
-        input, select, button {
-            transition: all 0.2s ease-in-out;
+        input,
+        select,
+        button {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        input:focus,
+        select:focus {
+            outline: none;
+            border-color: rgba(6, 182, 212, 0.6);
+            box-shadow: 0 0 0 3px rgba(6, 182, 212, 0.1),
+                0 4px 12px rgba(6, 182, 212, 0.2);
+            background: rgba(17, 24, 39, 0.9);
         }
 
         .custom-select {
             -webkit-appearance: none;
             -moz-appearance: none;
             appearance: none;
-            background-image: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2220%22%20height%3D%2220%22%20fill%3D%22none%22%20viewBox%3D%220%200%2020%2020%22%3E%3Cpath%20stroke%3D%22%239ca3af%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%20stroke-width%3D%221.5%22%20d%3D%22m6%209%204%204%204-4%22%2F%3E%3C%2Fsvg%3E');
+            background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2220%22%20height%3D%2220%22%20fill%3D%22none%22%20viewBox%3D%220%200%2020%2020%22%3E%3Cpath%20stroke%3D%22%2306b6d4%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%20stroke-width%3D%222%22%20d%3D%22m6%209%204%204%204-4%22%2F%3E%3C%2Fsvg%3E");
             background-repeat: no-repeat;
             background-position: right 0.75rem center;
             background-size: 1.25em;
-            padding-right: 2.5rem; 
+            padding-right: 2.5rem;
+            cursor: pointer;
+        }
+
+        button {
+            position: relative;
+            overflow: hidden;
+        }
+
+        button::before {
+            content: "";
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.2);
+            transform: translate(-50%, -50%);
+            transition: width 0.6s, height 0.6s;
+        }
+
+        button:active::before {
+            width: 300px;
+            height: 300px;
         }
 
         .status-indicator {
-            width: 8px;
-            height: 8px;
+            width: 10px;
+            height: 10px;
             border-radius: 50%;
             display: inline-block;
             margin-right: 8px;
+            position: relative;
+        }
+
+        .status-indicator::before {
+            content: "";
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            animation: ping 2s cubic-bezier(0, 0, 0.2, 1) infinite;
         }
 
         .status-online {
             background-color: #10b981;
-            box-shadow: 0 0 10px #10b981;
+            box-shadow: 0 0 20px rgba(16, 185, 129, 0.6);
+        }
+
+        .status-online::before {
+            background-color: rgba(16, 185, 129, 0.4);
         }
 
         .status-offline {
             background-color: #ef4444;
-            box-shadow: 0 0 10px #ef4444;
+            box-shadow: 0 0 20px rgba(239, 68, 68, 0.6);
+        }
+
+        .status-offline::before {
+            background-color: rgba(239, 68, 68, 0.4);
+        }
+
+        @keyframes ping {
+            0% {
+                transform: translate(-50%, -50%) scale(1);
+                opacity: 1;
+            }
+
+            75%,
+            100% {
+                transform: translate(-50%, -50%) scale(2.5);
+                opacity: 0;
+            }
+        }
+
+        .live-badge {
+            background: linear-gradient(135deg, #10b981, #059669);
+            color: white;
+            padding: 4px 14px;
+            border-radius: 20px;
+            font-size: 0.7rem;
+            font-weight: 700;
+            letter-spacing: 0.8px;
+            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.4);
+            animation: livePulse 2s ease-in-out infinite;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            text-transform: uppercase;
+        }
+
+        .live-badge::before {
+            content: "";
+            width: 6px;
+            height: 6px;
+            background: white;
+            border-radius: 50%;
+            animation: blink 1.5s ease-in-out infinite;
+        }
+
+        @keyframes livePulse {
+
+            0%,
+            100% {
+                box-shadow: 0 4px 12px rgba(16, 185, 129, 0.4);
+            }
+
+            50% {
+                box-shadow: 0 4px 20px rgba(16, 185, 129, 0.7);
+            }
+        }
+
+        @keyframes blink {
+
+            0%,
+            100% {
+                opacity: 1;
+            }
+
+            50% {
+                opacity: 0.3;
+            }
+        }
+
+        table {
+            border-collapse: separate;
+            border-spacing: 0;
+        }
+
+        thead th {
+            position: sticky;
+            top: 0;
+            background: rgba(17, 24, 39, 0.95);
+            backdrop-filter: blur(10px);
+            z-index: 10;
+        }
+
+        tbody tr {
+            transition: all 0.2s ease;
+        }
+
+        tbody tr:hover {
+            background: rgba(6, 182, 212, 0.08);
+            transform: scale(1.01);
+        }
+
+        .animate-spin {
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            from {
+                transform: rotate(0deg);
+            }
+
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: rgba(15, 23, 42, 0.5);
+            border-radius: 10px;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: linear-gradient(180deg, #06b6d4, #0891b2);
+            border-radius: 10px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: linear-gradient(180deg, #0891b2, #0e7490);
+        }
+
+        .gradient-text {
+            background: linear-gradient(135deg, #06b6d4, #3b82f6, #8b5cf6);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: gradientShift 3s ease infinite;
+            background-size: 200% 200%;
+        }
+
+        @keyframes gradientShift {
+
+            0%,
+            100% {
+                background-position: 0% 50%;
+            }
+
+            50% {
+                background-position: 100% 50%;
+            }
+        }
+
+        .badge {
+            transition: all 0.2s ease;
+        }
+
+        .badge:hover {
+            transform: scale(1.05);
+            filter: brightness(1.2);
+        }
+
+        .container {
+            animation: containerFadeIn 0.8s ease;
+        }
+
+        @keyframes containerFadeIn {
+            from {
+                opacity: 0;
+                transform: scale(0.98);
+            }
+
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        #spinner {
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+
+            to {
+                opacity: 1;
+            }
+        }
+
+        #error-message {
+            animation: shake 0.5s ease;
+        }
+
+        @keyframes shake {
+
+            0%,
+            100% {
+                transform: translateX(0);
+            }
+
+            25% {
+                transform: translateX(-10px);
+            }
+
+            75% {
+                transform: translateX(10px);
+            }
+        }
+
+        footer {
+            transition: opacity 0.3s ease;
+        }
+
+        footer:hover {
+            opacity: 1 !important;
+        }
+
+        .market-data-card {
+            transition: all 0.3s ease;
+        }
+
+        .market-data-card:hover {
+            transform: translateY(-2px);
+            border-color: rgba(6, 182, 212, 0.4);
+            background: rgba(31, 41, 55, 0.6);
+        }
+
+        .section-icon {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg,
+                    rgba(6, 182, 212, 0.2),
+                    rgba(59, 130, 246, 0.2));
+            border-radius: 12px;
+            font-size: 1.25rem;
+        }
+
+        @media (max-width: 768px) {
+            body {
+                background-size: 400% 400%;
+            }
+
+            .glass-effect {
+                border-radius: 1rem;
+                backdrop-filter: blur(16px) saturate(160%);
+            }
+
+            table {
+                font-size: 0.7rem;
+            }
+
+            .metric-card {
+                padding: 0.875rem !important;
+            }
+
+            .metric-card p:first-child {
+                font-size: 0.6rem;
+                margin-bottom: 0.375rem;
+            }
+
+            .metric-card p:last-child {
+                font-size: 1.125rem;
+            }
+
+            .metric-card:hover {
+                transform: translateY(-3px) scale(1.01);
+            }
+
+            input,
+            select {
+                font-size: 16px;
+            }
+
+            .status-indicator {
+                width: 8px;
+                height: 8px;
+            }
+
+            .section-icon {
+                width: 32px;
+                height: 32px;
+                font-size: 1rem;
+            }
+        }
+
+        @media (min-width: 641px) and (max-width: 1024px) {
+            .metric-card {
+                padding: 1.125rem !important;
+            }
+
+            .metric-card p:first-child {
+                font-size: 0.65rem;
+            }
+
+            .metric-card p:last-child {
+                font-size: 1.375rem;
+            }
+        }
+
+        @media (min-width: 1025px) {
+            .metric-card:hover {
+                transform: translateY(-8px) scale(1.03);
+            }
+
+            .glass-effect:hover {
+                border-color: rgba(255, 255, 255, 0.12);
+            }
         }
     </style>
 </head>
+
 <body class="min-h-screen">
     <div class="container mx-auto p-4 md:p-8 max-w-7xl">
-
-        <header class="text-center mb-10">
-            <div class="flex items-center justify-center gap-4 mb-4">
-                <h1 class="text-4xl md:text-6xl font-bold bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent">
+        <header class="text-center mb-8 md:mb-12">
+            <div class="flex items-center justify-center gap-3 md:gap-4 mb-3 md:mb-4">
+                <h1 class="text-3xl md:text-5xl lg:text-6xl font-extrabold gradient-text">
                     Quant Enthusiasts
                 </h1>
             </div>
-            <h2 class="text-xl md:text-2xl font-light text-blue-200">Community Risk Engine v3.0</h2>
-            <div class="mt-4 flex items-center justify-center text-sm">
+            <h2 class="text-base md:text-xl lg:text-2xl font-light text-blue-200/90 mb-3">
+                Community Risk Engine v3.1
+                <span class="live-badge ml-2">LIVE</span>
+            </h2>
+            <p class="text-xs md:text-sm text-gray-400 mb-3 md:mb-4">
+                Market data automatically fetched from Yahoo Finance
+            </p>
+            <div class="flex items-center justify-center text-xs md:text-sm">
                 <span id="api-status-indicator" class="status-indicator status-offline"></span>
                 <span id="api-status-text" class="text-gray-400">Checking API status...</span>
             </div>
         </header>
 
-        <main class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-
-            <div class="lg:col-span-1 glass-effect p-6 shadow-2xl fade-in">
-                <h3 class="text-xl font-semibold mb-4 flex items-center gap-2">
-                    <span class="text-2xl">📊</span>
-                    <span>Market Data</span>
-                </h3>
-                <div id="market-data-container" class="space-y-4">
+        <main class="grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-6">
+            <div class="lg:col-span-1 glass-effect p-5 md:p-6 shadow-2xl fade-in">
+                <div class="flex justify-between items-center mb-5">
+                    <div class="flex items-center gap-3">
+                        <div class="section-icon">
+                            <svg class="w-5 h-5 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                            </svg>
+                        </div>
+                        <h3 class="text-base md:text-lg font-semibold text-gray-100">
+                            Live Market Data
+                        </h3>
                     </div>
+                    <button id="refresh-market-data-btn"
+                        class="text-xs bg-blue-600 hover:bg-blue-500 text-white px-3 py-1.5 rounded-lg transition font-medium">
+                        Refresh
+                    </button>
+                </div>
+                <div id="market-data-display" class="space-y-3 text-sm">
+                    <p class="text-gray-400 text-center py-10">
+                        Add instruments to view market data
+                    </p>
+                </div>
             </div>
 
-            <div class="lg:col-span-2 glass-effect p-6 shadow-2xl fade-in">
-                <h3 class="text-xl font-semibold mb-4 flex items-center gap-2">
-                    <span class="text-2xl">💼</span>
-                    <span>Portfolio Builder</span>
-                </h3>
-                
-                <form id="instrument-form" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 mb-6">
-                    <div>
-                        <label for="asset-id" class="block text-sm font-medium text-gray-300 mb-1">Asset ID</label>
-                        <input type="text" id="asset-id" value="AAPL"
-                               class="w-full bg-gray-800/60 border border-gray-700 rounded-lg px-3 py-2 text-white placeholder-gray-500 focus:ring-2 focus:ring-cyan-500 focus:border-transparent"
-                               placeholder="e.g., AAPL" required>
+            <div class="lg:col-span-2 glass-effect p-5 md:p-6 shadow-2xl fade-in">
+                <div class="flex items-center gap-3 mb-5">
+                    <div class="section-icon">
+                        <svg class="w-5 h-5 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                        </svg>
                     </div>
-                    
+                    <h3 class="text-base md:text-lg font-semibold text-gray-100">
+                        Portfolio Builder
+                    </h3>
+                </div>
+
+                <form id="instrument-form"
+                    class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-5 mb-5 md:mb-6">
                     <div>
-                        <label for="style" class="block text-sm font-medium text-gray-300 mb-1">Style</label>
-                        <select id="style" class="custom-select w-full bg-gray-800/60 border border-gray-700 rounded-lg px-3 py-2 text-white focus:ring-2 focus:ring-cyan-500 focus:border-transparent">
+                        <label for="asset-id" class="block text-xs md:text-sm font-medium text-gray-300 mb-1.5">Asset
+                            ID</label>
+                        <input type="text" id="asset-id" value="AAPL"
+                            class="w-full bg-gray-800/60 border border-gray-700 rounded-lg px-3 py-2.5 text-sm md:text-base text-white placeholder-gray-500 focus:ring-2 focus:ring-cyan-500 focus:border-transparent"
+                            placeholder="e.g., AAPL" required />
+                    </div>
+
+                    <div>
+                        <label for="style"
+                            class="block text-xs md:text-sm font-medium text-gray-300 mb-1.5">Style</label>
+                        <select id="style"
+                            class="custom-select w-full bg-gray-800/60 border border-gray-700 rounded-lg px-3 py-2.5 text-sm md:text-base text-white focus:ring-2 focus:ring-cyan-500 focus:border-transparent">
                             <option value="european">European</option>
                             <option value="american">American</option>
                         </select>
                     </div>
-                    
+
                     <div>
-                        <label for="type" class="block text-sm font-medium text-gray-300 mb-1">Type</label>
-                        <select id="type" class="custom-select w-full bg-gray-800/60 border border-gray-700 rounded-lg px-3 py-2 text-white focus:ring-2 focus:ring-cyan-500 focus:border-transparent">
+                        <label for="type" class="block text-xs md:text-sm font-medium text-gray-300 mb-1.5">Type</label>
+                        <select id="type"
+                            class="custom-select w-full bg-gray-800/60 border border-gray-700 rounded-lg px-3 py-2.5 text-sm md:text-base text-white focus:ring-2 focus:ring-cyan-500 focus:border-transparent">
                             <option value="call">Call</option>
                             <option value="put">Put</option>
                         </select>
                     </div>
-                    
+
                     <div>
-                        <label for="strike" class="block text-sm font-medium text-gray-300 mb-1">Strike Price</label>
+                        <label for="strike" class="block text-xs md:text-sm font-medium text-gray-300 mb-1.5">Strike
+                            Price</label>
                         <input type="number" id="strike" value="100" step="0.01" min="0.01"
-                               class="w-full bg-gray-800/60 border border-gray-700 rounded-lg px-3 py-2 text-white focus:ring-2 focus:ring-cyan-500 focus:border-transparent" required>
+                            class="w-full bg-gray-800/60 border border-gray-700 rounded-lg px-3 py-2.5 text-sm md:text-base text-white focus:ring-2 focus:ring-cyan-500 focus:border-transparent"
+                            required />
                     </div>
-                    
+
                     <div>
-                        <label for="expiry" class="block text-sm font-medium text-gray-300 mb-1">Expiry (Years)</label>
+                        <label for="expiry" class="block text-xs md:text-sm font-medium text-gray-300 mb-1.5">Expiry
+                            (Years)</label>
                         <input type="number" id="expiry" value="1.0" step="0.01" min="0.01"
-                               class="w-full bg-gray-800/60 border border-gray-700 rounded-lg px-3 py-2 text-white focus:ring-2 focus:ring-cyan-500 focus:border-transparent" required>
+                            class="w-full bg-gray-800/60 border border-gray-700 rounded-lg px-3 py-2.5 text-sm md:text-base text-white focus:ring-2 focus:ring-cyan-500 focus:border-transparent"
+                            required />
                     </div>
-                    
+
                     <div>
-                        <label for="quantity" class="block text-sm font-medium text-gray-300 mb-1">Quantity</label>
+                        <label for="quantity"
+                            class="block text-xs md:text-sm font-medium text-gray-300 mb-1.5">Quantity</label>
                         <input type="number" id="quantity" value="100"
-                               class="w-full bg-gray-800/60 border border-gray-700 rounded-lg px-3 py-2 text-white focus:ring-2 focus:ring-cyan-500 focus:border-transparent" required>
+                            class="w-full bg-gray-800/60 border border-gray-700 rounded-lg px-3 py-2.5 text-sm md:text-base text-white focus:ring-2 focus:ring-cyan-500 focus:border-transparent"
+                            required />
                     </div>
-                    
+
                     <div class="sm:col-span-2 lg:col-span-3">
                         <button type="submit"
-                                class="w-full bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white font-semibold py-3 px-6 rounded-lg shadow-lg hover:shadow-cyan-500/50 transform hover:-translate-y-0.5 active:scale-95">
-                            ➕ Add to Portfolio
+                            class="w-full bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white font-semibold py-3 px-6 rounded-lg shadow-lg hover:shadow-cyan-500/50 transform hover:-translate-y-0.5 active:scale-95 text-sm md:text-base">
+                            Add to Portfolio
                         </button>
                     </div>
                 </form>
 
-                <div class="bg-gray-800/40 rounded-lg p-4 mb-4">
-                    <div class="flex justify-between items-center text-sm">
-                        <span class="text-gray-400">Portfolio Size:</span>
+                <div class="bg-gray-800/40 rounded-lg p-4 mb-4 border border-gray-700/40">
+                    <div class="flex justify-between items-center text-xs md:text-sm">
+                        <span class="text-gray-400 font-medium">Portfolio Size</span>
                         <span id="portfolio-count" class="font-bold text-cyan-400">0 instruments</span>
                     </div>
                 </div>
@@ -177,280 +629,371 @@
                     <table class="min-w-full bg-gray-800/30">
                         <thead class="bg-gray-800/40">
                             <tr>
-                                <th class="py-3 px-4 text-left text-xs font-medium text-gray-300 uppercase">Asset</th>
-                                <th class="py-3 px-4 text-left text-xs font-medium text-gray-300 uppercase">Style</th>
-                                <th class="py-3 px-4 text-left text-xs font-medium text-gray-300 uppercase">Type</th>
-                                <th class="py-3 px-4 text-right text-xs font-medium text-gray-300 uppercase">Quantity</th>
-                                <th class="py-3 px-4 text-right text-xs font-medium text-gray-300 uppercase">Strike</th>
-                                <th class="py-3 px-4 text-right text-xs font-medium text-gray-300 uppercase">Expiry</th>
-                                <th class="py-3 px-4 text-center text-xs font-medium text-gray-300 uppercase">Actions</th>
+                                <th
+                                    class="py-3 px-3 md:px-4 text-left text-xs font-semibold text-gray-300 uppercase tracking-wider">
+                                    Asset
+                                </th>
+                                <th
+                                    class="py-3 px-3 md:px-4 text-left text-xs font-semibold text-gray-300 uppercase tracking-wider">
+                                    Style
+                                </th>
+                                <th
+                                    class="py-3 px-3 md:px-4 text-left text-xs font-semibold text-gray-300 uppercase tracking-wider">
+                                    Type
+                                </th>
+                                <th
+                                    class="py-3 px-3 md:px-4 text-right text-xs font-semibold text-gray-300 uppercase tracking-wider">
+                                    Quantity
+                                </th>
+                                <th
+                                    class="py-3 px-3 md:px-4 text-right text-xs font-semibold text-gray-300 uppercase tracking-wider">
+                                    Strike
+                                </th>
+                                <th
+                                    class="py-3 px-3 md:px-4 text-right text-xs font-semibold text-gray-300 uppercase tracking-wider">
+                                    Expiry
+                                </th>
+                                <th
+                                    class="py-3 px-3 md:px-4 text-center text-xs font-semibold text-gray-300 uppercase tracking-wider">
+                                    Actions
+                                </th>
                             </tr>
                         </thead>
-                        <tbody id="portfolio-table" class="divide-y divide-gray-700/50">
-                            </tbody>
+                        <tbody id="portfolio-table" class="divide-y divide-gray-700/50"></tbody>
                     </table>
-                    <div id="empty-portfolio" class="text-center py-8 text-gray-500">
+                    <div id="empty-portfolio" class="text-center py-10 text-sm text-gray-500">
                         No instruments in portfolio. Add one to get started.
                     </div>
                 </div>
             </div>
 
-            <div class="lg:col-span-3 glass-effect p-6 shadow-2xl fade-in">
+            <div class="lg:col-span-3 glass-effect p-5 md:p-6 shadow-2xl fade-in">
                 <div class="flex flex-col md:flex-row justify-between items-center gap-4 mb-6">
-                    <h3 class="text-xl font-semibold flex items-center gap-2">
-                        <span class="text-2xl">📈</span>
-                        <span>Risk Analysis</span>
-                    </h3>
+                    <div class="flex items-center gap-3">
+                        <div class="section-icon">
+                            <svg class="w-5 h-5 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
+                            </svg>
+                        </div>
+                        <h3 class="text-base md:text-lg font-semibold text-gray-100">
+                            Risk Analysis
+                        </h3>
+                    </div>
                     <button id="calculate-risk-btn"
-                            class="w-full md:w-auto bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-500 hover:to-emerald-500 text-white font-bold py-3 px-8 rounded-lg shadow-lg hover:shadow-green-500/50 disabled:opacity-50 disabled:cursor-not-allowed transform hover:-translate-y-0.5 active:scale-95">
-                        🚀 Calculate Portfolio Risk
+                        class="w-full md:w-auto bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-500 hover:to-emerald-500 text-white font-bold py-3 px-8 rounded-lg shadow-lg hover:shadow-green-500/50 disabled:opacity-50 disabled:cursor-not-allowed transform hover:-translate-y-0.5 active:scale-95 text-sm md:text-base">
+                        Calculate Portfolio Risk
                     </button>
                 </div>
-                
-                <div id="results-container" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 hidden">
+
+                <div id="results-container"
+                    class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3 md:gap-4 hidden"></div>
+
+                <div id="auto-fetch-info" class="hidden mt-4 p-4 bg-green-900/20 border border-green-500/50 rounded-lg">
+                    <p class="text-xs md:text-sm text-green-300">
+                        <span class="font-semibold">Auto-fetched market data for:</span>
+                        <span id="auto-fetched-assets" class="ml-2"></span>
+                    </p>
+                </div>
+
+                <div id="spinner" class="hidden flex flex-col justify-center items-center py-12 md:py-16">
+                    <div
+                        class="animate-spin rounded-full h-14 w-14 md:h-16 md:w-16 border-t-4 border-b-4 border-cyan-500 mb-4">
                     </div>
-                
-                <div id="spinner" class="hidden flex flex-col justify-center items-center py-12">
-                    <div class="animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-cyan-500 mb-4"></div>
-                    <p class="text-gray-400 animate-pulse">Calculating risk metrics...</p>
+                    <p class="text-sm md:text-base text-gray-400 animate-pulse font-medium">
+                        Fetching live data and calculating risk...
+                    </p>
                 </div>
-                
-                <div id="error-message" class="hidden p-4 bg-red-900/30 border border-red-500/50 text-red-300 rounded-lg">
+
+                <div id="error-message"
+                    class="hidden p-4 bg-red-900/30 border border-red-500/50 text-red-300 rounded-lg text-sm md:text-base">
                 </div>
-                
-                <div id="initial-state" class="text-center py-12 text-gray-500">
+
+                <div id="initial-state" class="text-center py-12 md:py-16 text-sm md:text-base text-gray-500">
                     Add instruments to your portfolio and calculate risk metrics.
+                    <br /><small class="text-xs mt-2 inline-block text-gray-600">Market data will be fetched
+                        automatically</small>
                 </div>
             </div>
         </main>
 
-        <footer class="text-center mt-8 text-gray-400 opacity-60 text-sm">
-            <p>Powered by C++ Quantitative Risk Engine with Python Flask API</p>
+        <footer class="text-center mt-8 md:mt-10 text-gray-500 opacity-70 text-xs md:text-sm">
+            <p>
+                Powered by C++ Risk Engine + Python Flask + Yahoo Finance Live Data
+            </p>
         </footer>
     </div>
 
     <script>
         const CONFIG = {
-            API_BASE_URL: 'http://127.0.0.1:5000',
+            API_BASE_URL: "https://quant-enthusiasts-risk-engine.onrender.com",
             API_HEALTH_CHECK_INTERVAL: 30000,
             DEFAULT_MARKET_DATA: {
                 spot: 100,
                 rate: 0.05,
                 vol: 0.25,
-                dividend: 0.0
-            }
+                dividend: 0.0,
+            },
         };
+
         const STATE = {
             portfolio: [],
-            marketData: {},
+            marketDataCache: {},
             apiOnline: false,
-            calculating: false
+            calculating: false,
         };
+
         const ELEMENTS = {
-            instrumentForm: document.getElementById('instrument-form'),
-            assetIdInput: document.getElementById('asset-id'),
-            styleSelect: document.getElementById('style'),
-            typeSelect: document.getElementById('type'),
-            strikeInput: document.getElementById('strike'),
-            expiryInput: document.getElementById('expiry'),
-            quantityInput: document.getElementById('quantity'),
-            portfolioTable: document.getElementById('portfolio-table'),
-            emptyPortfolio: document.getElementById('empty-portfolio'),
-            portfolioCount: document.getElementById('portfolio-count'),
-            marketDataContainer: document.getElementById('market-data-container'),
-            calculateBtn: document.getElementById('calculate-risk-btn'),
-            resultsContainer: document.getElementById('results-container'),
-            spinner: document.getElementById('spinner'),
-            errorMessage: document.getElementById('error-message'),
-            initialState: document.getElementById('initial-state'),
-            apiStatusIndicator: document.getElementById('api-status-indicator'),
-            apiStatusText: document.getElementById('api-status-text')
+            instrumentForm: document.getElementById("instrument-form"),
+            assetIdInput: document.getElementById("asset-id"),
+            styleSelect: document.getElementById("style"),
+            typeSelect: document.getElementById("type"),
+            strikeInput: document.getElementById("strike"),
+            expiryInput: document.getElementById("expiry"),
+            quantityInput: document.getElementById("quantity"),
+            portfolioTable: document.getElementById("portfolio-table"),
+            emptyPortfolio: document.getElementById("empty-portfolio"),
+            portfolioCount: document.getElementById("portfolio-count"),
+            marketDataDisplay: document.getElementById("market-data-display"),
+            refreshMarketDataBtn: document.getElementById(
+                "refresh-market-data-btn"
+            ),
+            calculateBtn: document.getElementById("calculate-risk-btn"),
+            resultsContainer: document.getElementById("results-container"),
+            autoFetchInfo: document.getElementById("auto-fetch-info"),
+            autoFetchedAssets: document.getElementById("auto-fetched-assets"),
+            spinner: document.getElementById("spinner"),
+            errorMessage: document.getElementById("error-message"),
+            initialState: document.getElementById("initial-state"),
+            apiStatusIndicator: document.getElementById("api-status-indicator"),
+            apiStatusText: document.getElementById("api-status-text"),
         };
+
         const showError = (message) => {
             ELEMENTS.errorMessage.textContent = message;
-            ELEMENTS.errorMessage.classList.remove('hidden');
-            ELEMENTS.resultsContainer.classList.add('hidden');
-            ELEMENTS.initialState.classList.add('hidden');
-            setTimeout(() => ELEMENTS.errorMessage.classList.add('hidden'), 10000);
+            ELEMENTS.errorMessage.classList.remove("hidden");
+            ELEMENTS.resultsContainer.classList.add("hidden");
+            ELEMENTS.autoFetchInfo.classList.add("hidden");
+            ELEMENTS.initialState.classList.add("hidden");
+            setTimeout(() => ELEMENTS.errorMessage.classList.add("hidden"), 10000);
         };
+
         const showSpinner = () => {
-            ELEMENTS.spinner.classList.remove('hidden');
-            ELEMENTS.resultsContainer.classList.add('hidden');
-            ELEMENTS.errorMessage.classList.add('hidden');
-            ELEMENTS.initialState.classList.add('hidden');
+            ELEMENTS.spinner.classList.remove("hidden");
+            ELEMENTS.resultsContainer.classList.add("hidden");
+            ELEMENTS.errorMessage.classList.add("hidden");
+            ELEMENTS.autoFetchInfo.classList.add("hidden");
+            ELEMENTS.initialState.classList.add("hidden");
         };
+
         const hideSpinner = () => {
-            ELEMENTS.spinner.classList.add('hidden');
+            ELEMENTS.spinner.classList.add("hidden");
         };
+
         const checkApiHealth = async () => {
             try {
                 const response = await fetch(`${CONFIG.API_BASE_URL}/health`, {
-                    method: 'GET',
-                    headers: { 'Content-Type': 'application/json' }
+                    method: "GET",
+                    headers: { "Content-Type": "application/json" },
                 });
                 if (response.ok) {
+                    const data = await response.json();
                     STATE.apiOnline = true;
-                    ELEMENTS.apiStatusIndicator.className = 'status-indicator status-online';
-                    ELEMENTS.apiStatusText.textContent = 'API Connected';
+                    ELEMENTS.apiStatusIndicator.className =
+                        "status-indicator status-online";
+                    ELEMENTS.apiStatusText.textContent = `API Connected (${data.cache_info.cached_assets} assets cached)`;
                     ELEMENTS.calculateBtn.disabled = false;
                 } else {
-                    throw new Error('API health check failed');
+                    throw new Error("API health check failed");
                 }
             } catch (error) {
                 STATE.apiOnline = false;
-                ELEMENTS.apiStatusIndicator.className = 'status-indicator status-offline';
-                ELEMENTS.apiStatusText.textContent = 'API Offline';
+                ELEMENTS.apiStatusIndicator.className =
+                    "status-indicator status-offline";
+                ELEMENTS.apiStatusText.textContent = "API Offline";
                 ELEMENTS.calculateBtn.disabled = true;
             }
         };
-        const validateInstrument = (instrument) => {
-            const errors = [];
-            if (!instrument.asset_id || instrument.asset_id.trim() === '') {
-                errors.push('Asset ID is required');
+
+        const fetchMarketData = async (tickers, forceRefresh = false) => {
+            try {
+                const response = await fetch(
+                    `${CONFIG.API_BASE_URL}/update_market_data`,
+                    {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({
+                            tickers: tickers,
+                            force_refresh: forceRefresh,
+                        }),
+                    }
+                );
+
+                if (response.ok || response.status === 207) {
+                    const data = await response.json();
+
+                    // Update cache
+                    for (const [ticker, marketData] of Object.entries(data.updated)) {
+                        STATE.marketDataCache[ticker] = marketData;
+                    }
+
+                    return data;
+                }
+            } catch (error) {
+                console.error("Error fetching market data:", error);
             }
-            if (instrument.strike <= 0) {
-                errors.push('Strike price must be positive');
-            }
-            if (instrument.expiry <= 0) {
-                errors.push('Expiry must be positive');
-            }
-            if (instrument.quantity === 0) {
-                errors.push('Quantity cannot be zero');
-            }
-            return errors;
+            return null;
         };
-        
-        const updateMarketDataFields = () => {
-            const neededAssets = new Set(STATE.portfolio.map(p => p.asset_id));
-            if (neededAssets.size === 0) {
-                neededAssets.add(ELEMENTS.assetIdInput.value.toUpperCase() || "AAPL");
+
+        const updateMarketDataDisplay = () => {
+            const assets = new Set(STATE.portfolio.map((p) => p.asset_id));
+
+            if (assets.size === 0) {
+                ELEMENTS.marketDataDisplay.innerHTML =
+                    '<p class="text-gray-400 text-center py-8">Add instruments to view market data</p>';
+                return;
             }
-            ELEMENTS.marketDataContainer.innerHTML = '';
-            const currentMarketData = { ...STATE.marketData };
-            STATE.marketData = {};
-            neededAssets.forEach(assetId => {
-                const existingData = currentMarketData[assetId] || { ...CONFIG.DEFAULT_MARKET_DATA };
-                STATE.marketData[assetId] = existingData;
-                const wrapper = document.createElement('div');
-                wrapper.className = 'p-4 bg-gray-800/40 rounded-xl border border-gray-700/60 hover:border-cyan-500/50 transition fade-in';
-                wrapper.innerHTML = `
-                    <h4 class="text-lg font-bold text-cyan-400 mb-3 flex items-center gap-2">
-                        <span>📌</span>
-                        <span>${assetId}</span>
-                    </h4>
-                    <div class="grid grid-cols-2 gap-3">
-                        <div>
-                            <label class="text-xs text-gray-400 block mb-1">Spot Price</label>
-                            <input type="number"
-                                    data-asset="${assetId}"
-                                    data-field="spot"
-                                    value="${existingData.spot}"
-                                    step="0.01"
-                                   min="0.01"
-                                   class="w-full bg-gray-700/60 text-white p-2 rounded-lg text-sm border border-gray-600 focus:ring-2 focus:ring-cyan-500 focus:border-transparent">
+
+            ELEMENTS.marketDataDisplay.innerHTML = "";
+
+            assets.forEach((asset) => {
+                const cached = STATE.marketDataCache[asset];
+                const card = document.createElement("div");
+                card.className =
+                    "p-3 bg-gray-800/40 rounded-lg border border-gray-700/60";
+
+                if (cached) {
+                    const ageMinutes = Math.floor(
+                        (new Date() - new Date(cached.last_updated)) / 60000
+                    );
+                    const ageText =
+                        ageMinutes < 60
+                            ? `${ageMinutes}m ago`
+                            : `${Math.floor(ageMinutes / 60)}h ago`;
+
+                    card.innerHTML = `
+                        <div class="flex justify-between items-start mb-2">
+                            <h4 class="font-bold text-cyan-400">${asset}</h4>
+                            <span class="text-xs text-gray-500">${ageText}</span>
                         </div>
-                        <div>
-                            <label class="text-xs text-gray-400 block mb-1">Rate (r)</label>
-                            <input type="number"
-                                    data-asset="${assetId}"
-                                    data-field="rate"
-                                    value="${existingData.rate}"
-                                    step="0.001"
-                                   class="w-full bg-gray-700/60 text-white p-2 rounded-lg text-sm border border-gray-600 focus:ring-2 focus:ring-cyan-500 focus:border-transparent">
+                        <div class="grid grid-cols-2 gap-2 text-xs">
+                            <div><span class="text-gray-400">Spot:</span> <span class="text-white">${cached.spot.toFixed(
+                        2
+                    )}</span></div>
+                            <div><span class="text-gray-400">Vol:</span> <span class="text-white">${(
+                            cached.vol * 100
+                        ).toFixed(1)}%</span></div>
+                            <div><span class="text-gray-400">Rate:</span> <span class="text-white">${(
+                            cached.rate * 100
+                        ).toFixed(2)}%</span></div>
+                            <div><span class="text-gray-400">Div:</span> <span class="text-white">${(
+                            cached.dividend * 100
+                        ).toFixed(2)}%</span></div>
                         </div>
-                        <div>
-                            <label class="text-xs text-gray-400 block mb-1">Volatility (σ)</label>
-                            <input type="number"
-                                    data-asset="${assetId}"
-                                    data-field="vol"
-                                    value="${existingData.vol}"
-                                    step="0.01"
-                                   min="0"
-                                   class="w-full bg-gray-700/60 text-white p-2 rounded-lg text-sm border border-gray-600 focus:ring-2 focus:ring-cyan-500 focus:border-transparent">
-                        </div>
-                        <div>
-                            <label class="text-xs text-gray-400 block mb-1">Dividend</label>
-                            <input type="number"
-                                    data-asset="${assetId}"
-                                    data-field="dividend"
-                                    value="${existingData.dividend || 0}"
-                                    step="0.001"
-                                   min="0"
-                                   class="w-full bg-gray-700/60 text-white p-2 rounded-lg text-sm border border-gray-600 focus:ring-2 focus:ring-cyan-500 focus:border-transparent">
-                        </div>
-                    </div>
-                `;
-                ELEMENTS.marketDataContainer.appendChild(wrapper);
+                    `;
+                } else {
+                    card.innerHTML = `
+                        <h4 class="font-bold text-cyan-400 mb-2">${asset}</h4>
+                        <p class="text-xs text-yellow-400">⚠ Will fetch on calculate</p>
+                    `;
+                }
+
+                ELEMENTS.marketDataDisplay.appendChild(card);
             });
         };
 
-        ELEMENTS.marketDataContainer.addEventListener('input', (e) => {
-            if (e.target.matches('input[type="number"]')) {
-                const { asset, field } = e.target.dataset;
-                const value = parseFloat(e.target.value);
-                if (!isNaN(value)) {
-                    STATE.marketData[asset][field] = value;
-                }
-            }
+        ELEMENTS.refreshMarketDataBtn.addEventListener("click", async () => {
+            const assets = [...new Set(STATE.portfolio.map((p) => p.asset_id))];
+            if (assets.length === 0) return;
+
+            ELEMENTS.refreshMarketDataBtn.disabled = true;
+            ELEMENTS.refreshMarketDataBtn.textContent = "⏳ Fetching...";
+
+            await fetchMarketData(assets, true);
+            updateMarketDataDisplay();
+            await checkApiHealth();
+
+            ELEMENTS.refreshMarketDataBtn.disabled = false;
+            ELEMENTS.refreshMarketDataBtn.textContent = "🔄 Refresh";
         });
+
         const updatePortfolioCount = () => {
             const count = STATE.portfolio.length;
-            ELEMENTS.portfolioCount.textContent = `${count} instrument${count !== 1 ? 's' : ''}`;
+            ELEMENTS.portfolioCount.textContent = `${count} instrument${count !== 1 ? "s" : ""
+                }`;
         };
 
         const renderPortfolio = () => {
-            ELEMENTS.portfolioTable.innerHTML = '';
+            ELEMENTS.portfolioTable.innerHTML = "";
             if (STATE.portfolio.length === 0) {
-                ELEMENTS.emptyPortfolio.classList.remove('hidden');
+                ELEMENTS.emptyPortfolio.classList.remove("hidden");
                 ELEMENTS.calculateBtn.disabled = true;
                 updatePortfolioCount();
+                updateMarketDataDisplay();
                 return;
             }
-            ELEMENTS.emptyPortfolio.classList.add('hidden');
+            ELEMENTS.emptyPortfolio.classList.add("hidden");
             ELEMENTS.calculateBtn.disabled = !STATE.apiOnline;
+
             STATE.portfolio.forEach((instrument, index) => {
-                const row = document.createElement('tr');
-                row.className = 'hover:bg-gray-700/50 transition fade-in';
-                const qtyColor = instrument.quantity > 0 ? 'text-green-400' : 'text-red-400';
-                const qtySign = instrument.quantity > 0 ? '+' : '';
+                const row = document.createElement("tr");
+                row.className = "hover:bg-gray-700/50 transition fade-in";
+                const qtyColor =
+                    instrument.quantity > 0 ? "text-green-400" : "text-red-400";
+                const qtySign = instrument.quantity > 0 ? "+" : "";
                 row.innerHTML = `
-                    <td class="py-3 px-4 font-medium text-cyan-400">${instrument.asset_id}</td>
+                    <td class="py-3 px-4 font-medium text-cyan-400">${instrument.asset_id
+                    }</td>
                     <td class="py-3 px-4">
                         <span class="px-2 py-1 text-xs rounded-full bg-purple-500/20 text-purple-300">
                             ${instrument.style}
                         </span>
                     </td>
                     <td class="py-3 px-4">
-                        <span class="px-2 py-1 text-xs rounded-full ${instrument.type === 'call' ? 'bg-green-500/20 text-green-300' : 'bg-red-500/20 text-red-300'}">
+                        <span class="px-2 py-1 text-xs rounded-full ${instrument.type === "call"
+                        ? "bg-green-500/20 text-green-300"
+                        : "bg-red-500/20 text-red-300"
+                    }">
                             ${instrument.type}
                         </span>
                     </td>
-                    <td class="py-3 px-4 text-right font-mono ${qtyColor}">${qtySign}${instrument.quantity}</td>
-                    <td class="py-3 px-4 text-right font-mono">$${instrument.strike.toFixed(2)}</td>
-                    <td class="py-3 px-4 text-right font-mono">${instrument.expiry.toFixed(2)}y</td>
+                    <td class="py-3 px-4 text-right font-mono ${qtyColor}">${qtySign}${instrument.quantity
+                    }</td>
+                    <td class="py-3 px-4 text-right font-mono">${instrument.strike.toFixed(
+                        2
+                    )}</td>
+                    <td class="py-3 px-4 text-right font-mono">${instrument.expiry.toFixed(
+                        2
+                    )}y</td>
                     <td class="py-3 px-4 text-center">
                         <button onclick="removeInstrument(${index})"
-                                 class="text-gray-400 hover:text-red-400 hover:bg-red-500/20 rounded-full w-7 h-7 flex items-center justify-center font-bold text-lg"
-                                 title="Remove instrument">
+                                class="text-gray-400 hover:text-red-400 hover:bg-red-500/20 rounded-full w-7 h-7 flex items-center justify-center font-bold text-lg mx-auto"
+                                title="Remove instrument">
                             ×
                         </button>
                     </td>
                 `;
                 ELEMENTS.portfolioTable.appendChild(row);
             });
-            updateMarketDataFields();
             updatePortfolioCount();
+            updateMarketDataDisplay();
         };
-        
+
         window.removeInstrument = (index) => {
-            if (confirm(`Remove ${STATE.portfolio[index].asset_id} ${STATE.portfolio[index].type} from portfolio?`)) {
+            if (
+                confirm(
+                    `Remove ${STATE.portfolio[index].asset_id} ${STATE.portfolio[index].type} from portfolio?`
+                )
+            ) {
                 STATE.portfolio.splice(index, 1);
                 renderPortfolio();
-                ELEMENTS.resultsContainer.classList.add('hidden');
-                ELEMENTS.initialState.classList.remove('hidden');
+                ELEMENTS.resultsContainer.classList.add("hidden");
+                ELEMENTS.autoFetchInfo.classList.add("hidden");
+                ELEMENTS.initialState.classList.remove("hidden");
             }
         };
-        ELEMENTS.instrumentForm.addEventListener('submit', (e) => {
+
+        ELEMENTS.instrumentForm.addEventListener("submit", (e) => {
             e.preventDefault();
             const newInstrument = {
                 asset_id: ELEMENTS.assetIdInput.value.trim().toUpperCase(),
@@ -458,96 +1001,376 @@
                 type: ELEMENTS.typeSelect.value.toLowerCase(),
                 strike: parseFloat(ELEMENTS.strikeInput.value),
                 expiry: parseFloat(ELEMENTS.expiryInput.value),
-                quantity: parseInt(ELEMENTS.quantityInput.value)
+                quantity: parseInt(ELEMENTS.quantityInput.value),
             };
-            const errors = validateInstrument(newInstrument);
-            if (errors.length > 0) {
-                showError(`Validation error: ${errors.join(', ')}`);
-                return;
-            }
+
             STATE.portfolio.push(newInstrument);
             renderPortfolio();
+
             ELEMENTS.instrumentForm.reset();
             ELEMENTS.assetIdInput.value = newInstrument.asset_id;
             ELEMENTS.strikeInput.value = "100";
             ELEMENTS.expiryInput.value = "1.0";
             ELEMENTS.quantityInput.value = "100";
-            ELEMENTS.styleSelect.value = "european";
-            ELEMENTS.typeSelect.value = "call";
         });
+
         const formatValue = (value, decimals = 2) => {
-            if (value === null || value === undefined || isNaN(value)) return 'N/A';
-            return value.toLocaleString('en-US', {
+            if (value === null || value === undefined || isNaN(value)) return "N/A";
+            return value.toLocaleString("en-US", {
                 minimumFractionDigits: decimals,
-                maximumFractionDigits: decimals
+                maximumFractionDigits: decimals,
             });
         };
+
         const getMetricColor = (label, value) => {
-            if (label.includes('VaR')) return 'text-red-400';
-            if (label === 'Total PV') return value >= 0 ? 'text-green-400' : 'text-red-400';
-            if (label === 'Delta') return Math.abs(value) > 10 ? 'text-yellow-400' : 'text-cyan-400';
-            return 'text-cyan-400';
+            if (label.includes("VaR")) return "text-red-400";
+            if (label === "Total PV")
+                return value >= 0 ? "text-green-400" : "text-red-400";
+            if (label === "Delta")
+                return Math.abs(value) > 10 ? "text-yellow-400" : "text-cyan-400";
+            return "text-cyan-400";
         };
-        ELEMENTS.calculateBtn.addEventListener('click', async () => {
+
+        ELEMENTS.calculateBtn.addEventListener("click", async () => {
             if (STATE.calculating) return;
             if (STATE.portfolio.length === 0) {
-                showError('Portfolio is empty. Add instruments before calculating risk.');
+                showError(
+                    "Portfolio is empty. Add instruments before calculating risk."
+                );
                 return;
             }
+
             STATE.calculating = true;
             ELEMENTS.calculateBtn.disabled = true;
             showSpinner();
+
+            // Send empty market_data object - API will auto-fetch
             const payload = {
                 portfolio: STATE.portfolio,
-                market_data: STATE.marketData,
+                market_data: {}, // Empty - let API auto-fetch
                 var_parameters: {
                     simulations: 100000,
                     confidence: 0.95,
-                    time_horizon: 1.0
-                }
+                    time_horizon: 1.0,
+                },
             };
+
             try {
-                const response = await fetch(`${CONFIG.API_BASE_URL}/calculate_risk`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(payload)
-                });
+                const response = await fetch(
+                    `${CONFIG.API_BASE_URL}/calculate_risk`,
+                    {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify(payload),
+                    }
+                );
+
                 if (!response.ok) {
                     const errorData = await response.json();
-                    throw new Error(errorData.error || `HTTP ${response.status}: Calculation failed`);
+                    throw new Error(
+                        errorData.error || `HTTP ${response.status}: Calculation failed`
+                    );
                 }
+
                 const results = await response.json();
+
+                // Update cache with auto-fetched data
+                if (
+                    results.market_data_info &&
+                    results.market_data_info.market_data_used
+                ) {
+                    for (const [ticker, data] of Object.entries(
+                        results.market_data_info.market_data_used
+                    )) {
+                        STATE.marketDataCache[ticker] = {
+                            ...data,
+                            last_updated: new Date().toISOString(),
+                        };
+                    }
+                    updateMarketDataDisplay();
+                }
+
+                // Show auto-fetched assets info
+                if (
+                    results.market_data_info &&
+                    results.market_data_info.auto_fetched_assets.length > 0
+                ) {
+                    ELEMENTS.autoFetchedAssets.textContent =
+                        results.market_data_info.auto_fetched_assets.join(", ");
+                    ELEMENTS.autoFetchInfo.classList.remove("hidden");
+                } else {
+                    ELEMENTS.autoFetchInfo.classList.add("hidden");
+                }
+
                 const metrics = [
-                    { label: 'Total PV', value: results.total_pv, prefix: '$' },
-                    { label: 'Delta', value: results.total_delta },
-                    { label: 'Gamma', value: results.total_gamma },
-                    { label: 'Vega', value: results.total_vega },
-                    { label: 'Theta', value: results.total_theta },
-                    { label: '95% VaR (1d)', value: results.value_at_risk_95, prefix: '$' }
+                    { label: "Total PV", value: results.total_pv, prefix: "$" },
+                    { label: "Delta", value: results.total_delta },
+                    { label: "Gamma", value: results.total_gamma },
+                    { label: "Vega", value: results.total_vega },
+                    { label: "Theta", value: results.total_theta },
+                    {
+                        label: "95% VaR (1d)",
+                        value: results.value_at_risk_95,
+                        prefix: "$",
+                    },
                 ];
-                
-                ELEMENTS.resultsContainer.innerHTML = metrics.map(({ label, value, prefix = '' }) => `
+
+                ELEMENTS.resultsContainer.innerHTML = metrics
+                    .map(
+                        ({ label, value, prefix = "" }) => `
                     <div class="metric-card bg-gray-800/50 p-5 rounded-xl border border-gray-700/60 hover:border-cyan-500/50 transition">
                         <p class="text-xs text-gray-400 mb-2 uppercase tracking-wide">${label}</p>
-                        <p class="text-2xl font-bold ${getMetricColor(label, value)}">${prefix}${formatValue(value)}</p>
+                        <p class="text-2xl font-bold ${getMetricColor(
+                            label,
+                            value
+                        )}">${prefix}${formatValue(value)}</p>
                     </div>
-                `).join('');
+                `
+                    )
+                    .join("");
 
-                ELEMENTS.resultsContainer.classList.remove('hidden');
-                ELEMENTS.initialState.classList.add('hidden');
-                ELEMENTS.errorMessage.classList.add('hidden');
+                ELEMENTS.resultsContainer.classList.remove("hidden");
+                ELEMENTS.initialState.classList.add("hidden");
+                ELEMENTS.errorMessage.classList.add("hidden");
+
+                // Update health check to show updated cache
+                await checkApiHealth();
             } catch (error) {
-                showError(`Error: ${error.message}. Ensure the Flask API is running on ${CONFIG.API_BASE_URL}`);
+                showError(`Error: ${error.message}`);
             } finally {
                 hideSpinner();
                 STATE.calculating = false;
-                ELEMENTS.calculateBtn.disabled = !STATE.apiOnline || STATE.portfolio.length === 0;
+                ELEMENTS.calculateBtn.disabled =
+                    !STATE.apiOnline || STATE.portfolio.length === 0;
             }
         });
+
+        // Initialize
         checkApiHealth();
         setInterval(checkApiHealth, CONFIG.API_HEALTH_CHECK_INTERVAL);
         renderPortfolio();
+
+        // ========================================
+        // SHARED NAVIGATION COMPONENT
+        // ========================================
+
+        const NavigationSystem = {
+            init() {
+                this.createNavigationButton();
+                this.setupMobileNavigation();
+                this.handlePageTransitions();
+            },
+
+            getCurrentPage() {
+                const path = window.location.pathname;
+                if (path.includes("documentation.html")) return "docs";
+                return "dashboard";
+            },
+
+            createNavigationButton() {
+                const currentPage = this.getCurrentPage();
+                const isDocsPage = currentPage === "docs";
+
+                // Desktop Navigation (Top Right)
+                const desktopNav = document.createElement("div");
+                desktopNav.id = "desktop-nav";
+                desktopNav.className = "fixed top-6 right-6 z-50 hidden md:block";
+                desktopNav.innerHTML = `
+            <button id="nav-btn-desktop" 
+                    class="nav-button glass-effect px-6 py-3 rounded-xl font-semibold text-sm flex items-center gap-3 hover:scale-105 transform transition-all duration-300 shadow-xl hover:shadow-cyan-500/50">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    ${isDocsPage
+                        ? '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/>'
+                        : '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>'
+                    }
+                </svg>
+                <span>${isDocsPage ? "Dashboard" : "Documentation"}</span>
+            </button>
+        `;
+
+                // Mobile Navigation (Bottom)
+                const mobileNav = document.createElement("div");
+                mobileNav.id = "mobile-nav";
+                mobileNav.className =
+                    "fixed bottom-6 left-1/2 transform -translate-x-1/2 z-50 md:hidden";
+                mobileNav.innerHTML = `
+            <button id="nav-btn-mobile" 
+                    class="nav-button glass-effect px-8 py-4 rounded-full font-semibold text-sm flex items-center gap-3 hover:scale-105 transform transition-all duration-300 shadow-2xl hover:shadow-cyan-500/50">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    ${isDocsPage
+                        ? '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/>'
+                        : '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>'
+                    }
+                </svg>
+                <span>${isDocsPage ? "Back to Dashboard" : "View Docs"}</span>
+            </button>
+        `;
+
+                document.body.appendChild(desktopNav);
+                document.body.appendChild(mobileNav);
+
+                // Add styles
+                this.injectStyles();
+
+                // Add click handlers
+                document
+                    .getElementById("nav-btn-desktop")
+                    .addEventListener("click", () => this.navigate());
+                document
+                    .getElementById("nav-btn-mobile")
+                    .addEventListener("click", () => this.navigate());
+            },
+
+            navigate() {
+                const currentPage = this.getCurrentPage();
+                const targetPage =
+                    currentPage === "docs" ? "" : "documentation.html";
+
+                // Add fade out animation
+                document.body.style.transition = "opacity 0.3s ease";
+                document.body.style.opacity = "0";
+
+                // Navigate after animation
+                setTimeout(() => {
+                    window.location.href = targetPage;
+                }, 300);
+            },
+
+            setupMobileNavigation() {
+                // Hide mobile nav on scroll down, show on scroll up
+                let lastScrollTop = 0;
+                const mobileNav = document.getElementById("mobile-nav");
+
+                if (!mobileNav) return;
+
+                window.addEventListener(
+                    "scroll",
+                    () => {
+                        const scrollTop =
+                            window.pageYOffset || document.documentElement.scrollTop;
+
+                        if (scrollTop > lastScrollTop && scrollTop > 100) {
+                            // Scrolling down
+                            mobileNav.style.transform = "translate(-50%, 150%)";
+                        } else {
+                            // Scrolling up
+                            mobileNav.style.transform = "translate(-50%, 0)";
+                        }
+
+                        lastScrollTop = scrollTop <= 0 ? 0 : scrollTop;
+                    },
+                    false
+                );
+            },
+
+            handlePageTransitions() {
+                // Fade in on page load
+                window.addEventListener("DOMContentLoaded", () => {
+                    document.body.style.opacity = "0";
+                    document.body.style.transition = "opacity 0.5s ease";
+
+                    setTimeout(() => {
+                        document.body.style.opacity = "1";
+                    }, 100);
+                });
+
+                // Save scroll position before leaving
+                window.addEventListener("beforeunload", () => {
+                    sessionStorage.setItem("scrollPosition", window.scrollY.toString());
+                });
+
+                // Restore scroll position if returning to same page
+                window.addEventListener("load", () => {
+                    const savedPosition = sessionStorage.getItem("scrollPosition");
+                    if (savedPosition) {
+                        window.scrollTo(0, parseInt(savedPosition));
+                        sessionStorage.removeItem("scrollPosition");
+                    }
+                });
+            },
+
+            injectStyles() {
+                const style = document.createElement("style");
+                style.textContent = `
+            .nav-button {
+                background: rgba(15, 23, 42, 0.95);
+                backdrop-filter: blur(20px) saturate(180%);
+                -webkit-backdrop-filter: blur(20px) saturate(180%);
+                border: 1px solid rgba(6, 182, 212, 0.3);
+                color: #06b6d4;
+                cursor: pointer;
+                position: relative;
+                overflow: hidden;
+            }
+
+            .nav-button::before {
+                content: '';
+                position: absolute;
+                top: 0;
+                left: -100%;
+                width: 100%;
+                height: 100%;
+                background: linear-gradient(90deg, transparent, rgba(6, 182, 212, 0.3), transparent);
+                transition: left 0.5s ease;
+            }
+
+            .nav-button:hover::before {
+                left: 100%;
+            }
+
+            .nav-button:hover {
+                border-color: rgba(6, 182, 212, 0.6);
+                color: #22d3ee;
+            }
+
+            .nav-button:active {
+                transform: scale(0.95) !important;
+            }
+
+            #mobile-nav {
+                transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            }
+
+            @media (max-width: 768px) {
+                .nav-button {
+                    animation: slideUpFade 0.5s ease-out;
+                }
+            }
+
+            @keyframes slideUpFade {
+                from {
+                    opacity: 0;
+                    transform: translateY(20px);
+                }
+                to {
+                    opacity: 1;
+                    transform: translateY(0);
+                }
+            }
+
+            /* Ensure mobile nav doesn't interfere with content */
+            @media (max-width: 768px) {
+                body {
+                    padding-bottom: 100px;
+                }
+            }
+        `;
+                document.head.appendChild(style);
+            },
+        };
+
+        // Initialize navigation when DOM is ready
+        if (document.readyState === "loading") {
+            document.addEventListener("DOMContentLoaded", () =>
+                NavigationSystem.init()
+            );
+        } else {
+            NavigationSystem.init();
+        }
+
+        // Export for debugging
+        window.NavigationSystem = NavigationSystem;
     </script>
 </body>
+
 </html>
-```

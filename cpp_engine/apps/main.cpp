@@ -6,10 +6,11 @@
 #include <random>
 #include <string>
 #include <algorithm>
-#include "Portfolio.h"
-#include "Instrument.h"
-#include "MarketData.h"
-#include "RiskEngine.h"
+
+#include "../libraries/qe_risk_engine/includes/Portfolio.h"
+#include "../libraries/qe_risk_engine/includes/Instrument.h"
+#include "../libraries/qe_risk_engine/includes/MarketData.h"
+#include "../libraries/qe_risk_engine/includes/RiskEngine.h"
 
 void printSeparator(char c = '=', int width = 70) {
     std::cout << std::string(width, c) << std::endl;
@@ -110,7 +111,6 @@ void demonstrateBasicPortfolio() {
         
         RiskEngine engine;
         engine.setVaRSimulations(50000);
-        engine.setVaRConfidenceLevel(0.95);
         
         PortfolioRiskResult results = engine.calculatePortfolioRisk(portfolio, market_data);
         
@@ -118,12 +118,17 @@ void demonstrateBasicPortfolio() {
         std::cout << "Portfolio Size: " << portfolio.size() << " instruments\n" << std::endl;
         
         std::cout << "Risk Metrics:" << std::endl;
-        std::cout << "  Total PV:          $" << std::setw(12) << results.total_pv << std::endl;
-        std::cout << "  Total Delta:        " << std::setw(12) << results.total_delta << std::endl;
-        std::cout << "  Total Gamma:        " << std::setw(12) << results.total_gamma << std::endl;
-        std::cout << "  Total Vega:         " << std::setw(12) << results.total_vega << std::endl;
-        std::cout << "  Total Theta:        " << std::setw(12) << results.total_theta << std::endl;
-        std::cout << "  95% VaR (1-day):   $" << std::setw(12) << results.value_at_risk_95 << std::endl;
+        std::cout << "  Total PV:           $" << std::setw(12) << results.total_pv << std::endl;
+        std::cout << "  Total Delta:         " << std::setw(12) << results.total_delta << std::endl;
+        std::cout << "  Total Gamma:         " << std::setw(12) << results.total_gamma << std::endl;
+        std::cout << "  Total Vega:          " << std::setw(12) << results.total_vega << std::endl;
+        std::cout << "  Total Theta:         " << std::setw(12) << results.total_theta << std::endl;
+        std::cout << "\nValue at Risk (1-day):" << std::endl;
+        std::cout << "  95% VaR:            $" << std::setw(12) << results.value_at_risk_95 << std::endl;
+        std::cout << "  99% VaR:            $" << std::setw(12) << results.value_at_risk_99 << std::endl;
+        std::cout << "\nExpected Shortfall (1-day):" << std::endl;
+        std::cout << "  95% ES:             $" << std::setw(12) << results.expected_shortfall_95 << std::endl;
+        std::cout << "  99% ES:             $" << std::setw(12) << results.expected_shortfall_99 << std::endl;
         
         std::cout << "\nNet Positions:" << std::endl;
         for (const auto& asset : assets) {
@@ -297,7 +302,6 @@ void demonstrateComplexPortfolio() {
         
         RiskEngine engine;
         engine.setVaRSimulations(100000);
-        engine.setVaRConfidenceLevel(0.99);
         engine.setVaRTimeHorizonDays(1.0);
         
         PortfolioRiskResult results = engine.calculatePortfolioRisk(portfolio, market_data);
@@ -312,13 +316,21 @@ void demonstrateComplexPortfolio() {
         std::cout << std::endl;
         
         std::cout << "Risk Metrics:" << std::endl;
-        std::cout << "  Total PV:          $" << std::setw(12) << results.total_pv << std::endl;
-        std::cout << "  Total Delta:        " << std::setw(12) << results.total_delta << std::endl;
-        std::cout << "  Total Gamma:        " << std::setw(12) << results.total_gamma << std::endl;
-        std::cout << "  Total Vega:         " << std::setw(12) << results.total_vega << std::endl;
-        std::cout << "  Total Theta:        " << std::setw(12) << results.total_theta << std::endl;
-        std::cout << "  99% VaR (1-day):   $" << std::setw(12) << results.value_at_risk_95 << std::endl;
-        std::cout << "  Simulations:        " << engine.getVaRSimulations() << std::endl;
+        std::cout << "  Total PV:           $" << std::setw(12) << results.total_pv << std::endl;
+        std::cout << "  Total Delta:         " << std::setw(12) << results.total_delta << std::endl;
+        std::cout << "  Total Gamma:         " << std::setw(12) << results.total_gamma << std::endl;
+        std::cout << "  Total Vega:          " << std::setw(12) << results.total_vega << std::endl;
+        std::cout << "  Total Theta:         " << std::setw(12) << results.total_theta << std::endl;
+        
+        std::cout << "\nValue at Risk (1-day):" << std::endl;
+        std::cout << "  95% VaR:            $" << std::setw(12) << results.value_at_risk_95 << std::endl;
+        std::cout << "  99% VaR:            $" << std::setw(12) << results.value_at_risk_99 << std::endl;
+        
+        std::cout << "\nExpected Shortfall (1-day):" << std::endl;
+        std::cout << "  95% ES:             $" << std::setw(12) << results.expected_shortfall_95 << std::endl;
+        std::cout << "  99% ES:             $" << std::setw(12) << results.expected_shortfall_99 << std::endl;
+        
+        std::cout << "\n  Simulations:        " << engine.getVaRSimulations() << std::endl;
         std::cout << std::endl;
         
         std::string delta_status = "NEUTRAL";

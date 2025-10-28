@@ -7,20 +7,24 @@ ext_modules = [
     Extension(
         'quant_risk_engine',
         sources=[
-            'pybind_wrapper.cpp',
-            '../cpp_engine/src/Instrument.cpp',
-            '../cpp_engine/src/MarketData.cpp',
-            '../cpp_engine/src/Portfolio.cpp',
-            '../cpp_engine/src/RiskEngine.cpp',
-            '../cpp_engine/src/utils/BlackScholes.cpp',
-            '../cpp_engine/src/utils/BinomialTree.cpp',
-            '../cpp_engine/src/utils/JumpDiffusion.cpp',
-            '../cpp_engine/src/utils/ImpliedVolatilitySurface.cpp'
+            '../cpp_engine/apps/main.cpp',
+            '../cpp_engine/libraries/python_interface/src/pybind_wrapper.cpp',
+            '../cpp_engine/libraries/qe_risk_engine/src/Portfolio.cpp',
+            '../cpp_engine/libraries/qe_risk_engine/src/RiskEngine.cpp',
+            '../cpp_engine/libraries/qe_risk_engine/src/BlackScholes.cpp',
+            '../cpp_engine/libraries/qe_risk_engine/src/BinomialTree.cpp',
+            '../cpp_engine/libraries/qe_risk_engine/src/JumpDiffusion.cpp',
+            '../cpp_engine/libraries/qe_risk_engine/src/ImpliedVolatilitySurface.cpp',
+            '../cpp_engine/libraries/qe_risk_engine/src/MarketData.cpp',
+            "../cpp_engine/libraries/qe_risk_engine/src/Instrument.cpp"
         ],
         include_dirs=[
             pybind11.get_include(),
             '../cpp_engine/src',
-            '../cpp_engine/src/utils'
+            '../cpp_engine/src/utils',
+            '../cpp_engine/libraries/qe_risk_engine/src',
+            '../cpp_engine/libraries/qe_risk_engine/src/utils',
+            '../cpp_engine/libraries/qe_risk_engine/includes'
         ],
         language='c++',
         extra_compile_args=cpp_args,

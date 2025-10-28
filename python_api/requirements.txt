@@ -1,2 +1,6 @@
-Flask
-pybind11
+flask>=2.3.0
+flask-cors>=4.0.0
+pybind11>=2.6.0
+yfinance>=0.2.28
+requests>=2.31.0
+setuptools

@@ -9,7 +9,6 @@
 
 RiskEngine::RiskEngine() 
     : var_simulations_(10000),
-      confidence_level_(0.95),
       time_horizon_days_(1.0),
       random_seed_(0),
       use_fixed_seed_(false) {
@@ -17,7 +16,6 @@ RiskEngine::RiskEngine()
 
 RiskEngine::RiskEngine(int var_simulations)
     : var_simulations_(var_simulations),
-      confidence_level_(0.95),
       time_horizon_days_(1.0),
       random_seed_(0),
       use_fixed_seed_(false) {
@@ -36,17 +34,6 @@ void RiskEngine::setVaRSimulations(int simulations) {
 
 int RiskEngine::getVaRSimulations() const {
     return var_simulations_;
-}
-
-void RiskEngine::setVaRConfidenceLevel(double confidence) {
-    if (confidence <= 0.0 || confidence >= 1.0) {
-        throw std::invalid_argument("Confidence level must be between 0 and 1");
-    }
-    confidence_level_ = confidence;
-}
-
-double RiskEngine::getVaRConfidenceLevel() const {
-    return confidence_level_;
 }
 
 void RiskEngine::setVaRTimeHorizonDays(double days) {
@@ -75,9 +62,6 @@ void RiskEngine::setUseFixedSeed(bool use_fixed) {
 void RiskEngine::validateParameters() const {
     if (var_simulations_ <= 0 || var_simulations_ > 1000000) {
         throw std::invalid_argument("Invalid VaR simulations parameter");
-    }
-    if (confidence_level_ <= 0.0 || confidence_level_ >= 1.0) {
-        throw std::invalid_argument("Invalid confidence level parameter");
     }
     if (time_horizon_days_ <= 0.0 || time_horizon_days_ > 252.0) {
         throw std::invalid_argument("Invalid time horizon parameter");
@@ -207,20 +191,26 @@ PortfolioRiskResult RiskEngine::calculatePortfolioRisk(
     }
     
     try {
-        result.value_at_risk_95 = calculateVaR(portfolio, market_data_map);
+        RiskMetrics metrics = calculateRiskMetrics(portfolio, market_data_map);
+        result.value_at_risk_95 = metrics.var_95;
+        result.value_at_risk_99 = metrics.var_99;
+        result.expected_shortfall_95 = metrics.es_95;
+        result.expected_shortfall_99 = metrics.es_99;
     } catch (const std::exception& e) {
-        throw std::runtime_error(std::string("VaR calculation failed: ") + e.what());
+        throw std::runtime_error(std::string("Risk metrics calculation failed: ") + e.what());
     }
     
     return result;
 }
 
-double RiskEngine::calculateVaR(
+RiskMetrics RiskEngine::calculateRiskMetrics(
     const Portfolio& portfolio, 
     const std::map<std::string, MarketData>& market_data_map
 ) {
-    double initial_portfolio_value = 0.0;
+    RiskMetrics metrics;
     
+    // Calculate initial portfolio value
+    double initial_portfolio_value = 0.0;
     const auto& instruments = portfolio.getInstruments();
     
     for (const auto& [instrument, quantity] : instruments) {
@@ -228,19 +218,20 @@ double RiskEngine::calculateVaR(
         double price = instrument->price(md);
         
         if (std::isnan(price) || std::isinf(price)) {
-            throw std::runtime_error("Invalid price in VaR calculation");
+            throw std::runtime_error("Invalid price in risk metrics calculation");
         }
         
         initial_portfolio_value += price * quantity;
     }
-
+    
     if (std::abs(initial_portfolio_value) < 1e-10) {
-        return 0.0;
+        return metrics;  // Return zeros for empty portfolio
     }
-
+    
+    // Run Monte Carlo simulations
     std::vector<double> pnl_distribution;
     pnl_distribution.reserve(var_simulations_);
-
+    
     std::mt19937 generator;
     if (use_fixed_seed_) {
         generator.seed(random_seed_);
@@ -250,24 +241,23 @@ double RiskEngine::calculateVaR(
     }
     
     std::normal_distribution<double> distribution(0.0, 1.0);
-
     const double dt = time_horizon_days_ / 252.0;
     const double sqrt_dt = std::sqrt(dt);
-
+    
     for (int i = 0; i < var_simulations_; ++i) {
         double simulated_portfolio_value = 0.0;
         
         for (const auto& [instrument, quantity] : instruments) {
             const std::string& asset_id = instrument->getAssetId();
             const MarketData& md = market_data_map.at(asset_id);
-
+            
             const double random_shock = distribution(generator);
             const double drift = (md.risk_free_rate - 0.5 * md.volatility * md.volatility) * dt;
             const double diffusion = md.volatility * sqrt_dt * random_shock;
             const double simulated_spot = md.spot_price * std::exp(drift + diffusion);
             
             if (std::isnan(simulated_spot) || std::isinf(simulated_spot) || simulated_spot <= 0.0) {
-                throw std::runtime_error("Invalid simulated spot price in VaR calculation");
+                throw std::runtime_error("Invalid simulated spot price in risk metrics calculation");
             }
             
             MarketData simulated_md = md;
@@ -276,7 +266,7 @@ double RiskEngine::calculateVaR(
             double simulated_price = instrument->price(simulated_md);
             
             if (std::isnan(simulated_price) || std::isinf(simulated_price)) {
-                throw std::runtime_error("Invalid simulated price in VaR calculation");
+                throw std::runtime_error("Invalid simulated price in risk metrics calculation");
             }
             
             simulated_portfolio_value += simulated_price * quantity;
@@ -290,16 +280,48 @@ double RiskEngine::calculateVaR(
     }
     
     if (pnl_distribution.empty()) {
-        throw std::runtime_error("VaR calculation produced no results");
+        throw std::runtime_error("Risk metrics calculation produced no results");
     }
     
+    // Sort the P&L distribution (ascending order: worst losses first)
     std::sort(pnl_distribution.begin(), pnl_distribution.end());
     
-    const int index = static_cast<int>((1.0 - confidence_level_) * var_simulations_);
+    // Calculate VaR at 95% confidence level
+    const int index_95 = static_cast<int>((1.0 - 0.95) * var_simulations_);
+    if (index_95 < 0 || index_95 >= var_simulations_) {
+        throw std::runtime_error("Invalid VaR 95% index calculation");
+    }
+    metrics.var_95 = -pnl_distribution[index_95];
     
-    if (index < 0 || index >= var_simulations_) {
-        throw std::runtime_error("Invalid VaR index calculation");
+    // Calculate VaR at 99% confidence level
+    const int index_99 = static_cast<int>((1.0 - 0.99) * var_simulations_);
+    if (index_99 < 0 || index_99 >= var_simulations_) {
+        throw std::runtime_error("Invalid VaR 99% index calculation");
+    }
+    metrics.var_99 = -pnl_distribution[index_99];
+    
+    // Calculate Expected Shortfall (CVaR) at 95%
+    // ES is the average of losses beyond VaR
+    double sum_95 = 0.0;
+    int count_95 = 0;
+    for (int i = 0; i <= index_95; ++i) {
+        sum_95 += pnl_distribution[i];
+        count_95++;
+    }
+    if (count_95 > 0) {
+        metrics.es_95 = -sum_95 / count_95;
     }
     
-    return -pnl_distribution[index];
+    // Calculate Expected Shortfall (CVaR) at 99%
+    double sum_99 = 0.0;
+    int count_99 = 0;
+    for (int i = 0; i <= index_99; ++i) {
+        sum_99 += pnl_distribution[i];
+        count_99++;
+    }
+    if (count_99 > 0) {
+        metrics.es_99 = -sum_99 / count_99;
+    }
+    
+    return metrics;
 }
