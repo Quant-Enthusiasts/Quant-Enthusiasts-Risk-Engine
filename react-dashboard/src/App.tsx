@@ -9,7 +9,7 @@ import { calculateRisk } from "./services/api.service";
 import type { RiskMetrics } from "./types";
 
 function App() {
-  const { isOnline: isApiOnline, isChecking } = useApiHealth();
+  const { isOnline: isApiOnline, isChecking, healthData } = useApiHealth();
   const {
     portfolio,
     marketData,
@@ -28,29 +28,21 @@ function App() {
       return;
     }
 
-    const uniqueAssets = new Set(portfolio.map((inst) => inst.asset_id));
-    const missingMarketData = Array.from(uniqueAssets).filter(
-      (asset) =>
-        !marketData[asset] ||
-        marketData[asset].spot === 0 ||
-        marketData[asset].volatility === 0
-    );
-
-    if (missingMarketData.length > 0) {
-      setError(
-        `Missing or incomplete market data for: ${missingMarketData.join(
-          ", "
-        )}. Please provide all market data.`
-      );
-      return;
-    }
+    // Filter out market data entries that are empty/undefined
+    // Only send data that has been fetched from the backend
+    const filteredMarketData: typeof marketData = {};
+    Object.entries(marketData).forEach(([assetId, data]) => {
+      if (data && data.spot > 0) {
+        filteredMarketData[assetId] = data;
+      }
+    });
 
     setLoading(true);
     setError("");
     setResults(null);
 
     try {
-      const riskMetrics = await calculateRisk(portfolio, marketData);
+      const riskMetrics = await calculateRisk(portfolio, filteredMarketData);
       setResults(riskMetrics);
     } catch (err) {
       setError(
@@ -62,28 +54,37 @@ function App() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-blue-900 to-purple-900">
-      <div className="container mx-auto px-4 py-8">
-        <Header isApiOnline={isApiOnline} />
+    <div className="min-h-screen">
+      <div className="container mx-auto px-4 py-8 max-w-7xl">
+        <Header
+          isApiOnline={isApiOnline}
+          cachedAssets={healthData?.cache_info?.cached_assets}
+        />
 
         <div className="space-y-8">
           {/* Grid layout for Market Data (30%) and Portfolio Builder (70%) */}
           <div className="grid grid-cols-1 lg:grid-cols-10 gap-8">
-            <div className="lg:col-span-3">
-              <MarketDataSection
-                portfolio={portfolio}
-                marketData={marketData}
-                onUpdateMarketData={updateMarketData}
-              />
+            <div className="lg:col-span-3 flex">
+              <div className="w-full flex flex-col">
+                <MarketDataSection
+                  portfolio={portfolio}
+                  marketData={marketData}
+                  onUpdateMarketData={updateMarketData}
+                />
+              </div>
             </div>
 
-            <div className="lg:col-span-7">
-              <PortfolioSection
-                portfolio={portfolio}
-                onAddInstrument={addInstrument}
-                onRemoveInstrument={removeInstrument}
-                onError={setError}
-              />
+            <div className="lg:col-span-7 flex">
+              <div className="w-full flex flex-col">
+                <PortfolioSection
+                  portfolio={portfolio}
+                  onAddInstrument={(onAddInstrument) =>
+                    addInstrument(onAddInstrument)
+                  }
+                  onRemoveInstrument={removeInstrument}
+                  onError={setError}
+                />
+              </div>
             </div>
           </div>
 
@@ -97,7 +98,7 @@ function App() {
           />
         </div>
 
-        <footer className="text-center mt-12 text-gray-500 text-sm">
+        <footer className="text-center mt-12 text-gray-500 opacity-70 text-sm">
           <p>
             Powered by C++ Quantitative Risk Engine with Python Flask API &amp;
             React + TypeScript

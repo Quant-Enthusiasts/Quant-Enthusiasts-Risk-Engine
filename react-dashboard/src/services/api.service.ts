@@ -75,7 +75,6 @@ class ApiService {
 
 export const apiService = new ApiService();
 
-
 export const calculateRisk = async (
   portfolio: RiskCalculationRequest["portfolio"],
   marketData: RiskCalculationRequest["market_data"]

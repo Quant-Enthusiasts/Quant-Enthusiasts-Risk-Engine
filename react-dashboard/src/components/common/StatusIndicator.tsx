@@ -16,9 +16,7 @@ export const StatusIndicator: React.FC<StatusIndicatorProps> = ({
           isOnline ? "status-online" : "status-offline"
         }`}
       />
-      <span className={`${isOnline ? "text-gray-400" : "text-gray-400"}`}>
-        {text}
-      </span>
+      <span className="text-gray-400 ml-2">{text}</span>
     </div>
   );
 };

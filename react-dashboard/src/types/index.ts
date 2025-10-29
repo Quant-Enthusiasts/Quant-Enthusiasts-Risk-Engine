@@ -62,6 +62,10 @@ export interface ApiHealthResponse {
   service: string;
   version: string;
   features: string[];
+  cache_info?: {
+    cached_assets: number;
+    last_cleanup?: string;
+  };
 }
 
 export interface ApiErrorResponse {

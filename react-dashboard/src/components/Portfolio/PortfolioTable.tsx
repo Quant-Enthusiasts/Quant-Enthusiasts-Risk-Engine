@@ -21,7 +21,7 @@ export const PortfolioTable: React.FC<PortfolioTableProps> = ({
   }
 
   return (
-    <div className="overflow-x-auto">
+    <div className="overflow-x-auto rounded-lg border border-gray-700/50">
       <table className="w-full">
         <thead>
           <tr className="border-b border-gray-700/50">
@@ -52,19 +52,19 @@ export const PortfolioTable: React.FC<PortfolioTableProps> = ({
           {portfolio.map((instrument, index) => (
             <tr
               key={index}
-              className="border-b border-gray-700/30 hover:bg-gray-800/40 transition-colors"
+              className="border-b border-gray-700/30 hover:bg-gray-800/50 transition-all"
             >
               <td className="px-4 py-4 text-cyan-400 font-medium">
                 {instrument.asset_id}
               </td>
               <td className="px-4 py-4">
-                <span className="inline-block px-3 py-1 rounded-full text-xs font-medium bg-purple-500/20 text-purple-300">
+                <span className="badge inline-block px-3 py-1 rounded-full text-xs font-medium bg-purple-500/20 text-purple-300">
                   {instrument.style}
                 </span>
               </td>
               <td className="px-4 py-4">
                 <span
-                  className={`inline-block px-3 py-1 rounded-full text-xs font-medium ${
+                  className={`badge inline-block px-3 py-1 rounded-full text-xs font-medium ${
                     instrument.type === "call"
                       ? "bg-green-500/20 text-green-400"
                       : "bg-red-500/20 text-red-400"
@@ -74,7 +74,9 @@ export const PortfolioTable: React.FC<PortfolioTableProps> = ({
                 </span>
               </td>
               <td className="px-4 py-4 text-green-400 font-medium">
-                +{instrument.quantity}
+                {instrument.quantity > 0
+                  ? `+${instrument.quantity}`
+                  : `${instrument.quantity}`}
               </td>
               <td className="px-4 py-4 text-right text-gray-300">
                 ${formatNumber(instrument.strike)}
@@ -85,20 +87,21 @@ export const PortfolioTable: React.FC<PortfolioTableProps> = ({
               <td className="px-4 py-4 text-center">
                 <button
                   onClick={() => onRemoveInstrument(index)}
-                  className="text-red-400 hover:text-red-300 hover:bg-red-500/20 px-3 py-1 rounded transition-colors"
+                  className="text-red-400 hover:text-red-300 hover:bg-red-500/20 px-3 py-1 rounded transition-all"
                   title="Remove instrument"
                 >
-                  🗑️
+                  ×
                 </button>
               </td>
             </tr>
           ))}
         </tbody>
       </table>
-      <div className="mt-4 text-sm text-gray-400">
-        <span className="font-semibold text-cyan-400">{portfolio.length}</span>{" "}
-        instrument
-        {portfolio.length !== 1 ? "s" : ""} in portfolio
+      <div className="px-4 py-3 bg-gray-800/20 border-t border-gray-700/50 text-xs text-gray-500 flex items-center justify-between">
+        <span>Portfolio Size</span>
+        <span className="text-cyan-400 font-medium">
+          {portfolio.length} instrument{portfolio.length !== 1 ? "s" : ""}
+        </span>
       </div>
     </div>
   );
