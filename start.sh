@@ -1,5 +1,5 @@
 #!/bin/bash
-# start.sh - Launch Quant Enthusiasts Risk Engine (Python API + JS Dashboard)
+# start.sh - Launch Quant Enthusiasts Risk Engine (Python API + React Dashboard)
 
 set -e  # Exit immediately if a command fails
 
@@ -30,10 +30,10 @@ python3 setup.py build_ext --inplace
 cd ..
 
 # -----------------------------
-# 2. JS Dashboard
+# 2. React Dashboard
 # -----------------------------
-echo "Setting up JS Dashboard..."
-cd js_dashboard
+echo "Setting up react Dashboard..."
+cd react_dashboard
 
 # Install Node dependencies if package.json exists
 if [ -f "package.json" ]; then
@@ -41,8 +41,8 @@ if [ -f "package.json" ]; then
 fi
 
 # Start local server
-echo "Launching JS Dashboard..."
-npx serve . -p 3000 &
+echo "Launching react Dashboard..."
+npm run dev
 
 cd ..
 
