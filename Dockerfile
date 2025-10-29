@@ -43,17 +43,20 @@ RUN ../venv/bin/python setup.py install
 WORKDIR /app
 
 # -----------------------------
-# JS Dashboard setup
+# React Dashboard setup
 # -----------------------------
-WORKDIR /app/js_dashboard
-# Only run npm install if package.json exists
-RUN if [ -f package.json ]; then npm install; fi
+WORKDIR /app/react_dashboard
+# Install dependencies and build
+RUN if [ -f package.json ]; then npm install && npm run build; fi
 WORKDIR /app
 
 # -----------------------------
 # Environment variables
 # -----------------------------
 ENV PATH="/app/venv/bin:$PATH"
+# React Dashboard environment variables
+ENV VITE_API_BASE_URL="https://quant-enthusiasts-risk-engine.onrender.com/"
+ENV VITE_API_HEALTH_CHECK_INTERVAL="30000"
 
 # -----------------------------
 # Expose ports
