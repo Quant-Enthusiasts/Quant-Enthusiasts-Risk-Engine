@@ -42,7 +42,7 @@ export const RiskAnalysisSection: React.FC<RiskAnalysisSectionProps> = ({
               />
             </svg>
           </span>
-          <span className="text-cyan-400">Risk Analysis</span>
+          <span className="text-white">Risk Analysis</span>
         </h2>
 
         <button
