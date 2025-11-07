@@ -4,6 +4,7 @@
 #include <algorithm>
 #include <vector>
 #include <cmath>
+#include <thread>
 #include <sstream>
 #include <limits>
 
@@ -208,7 +209,6 @@ RiskMetrics RiskEngine::calculateRiskMetrics(
     const std::map<std::string, MarketData>& market_data_map
 ) {
     RiskMetrics metrics;
-    
     // Calculate initial portfolio value
     double initial_portfolio_value = 0.0;
     const auto& instruments = portfolio.getInstruments();
@@ -228,60 +228,70 @@ RiskMetrics RiskEngine::calculateRiskMetrics(
         return metrics;  // Return zeros for empty portfolio
     }
     
-    // Run Monte Carlo simulations
-    std::vector<double> pnl_distribution;
-    pnl_distribution.reserve(var_simulations_);
-    
-    std::mt19937 generator;
-    if (use_fixed_seed_) {
-        generator.seed(random_seed_);
-    } else {
-        std::random_device rd;
-        generator.seed(rd());
-    }
-    
-    std::normal_distribution<double> distribution(0.0, 1.0);
+    std::vector<double> pnl_distribution(var_simulations_);
+
     const double dt = time_horizon_days_ / 252.0;
     const double sqrt_dt = std::sqrt(dt);
+
+    // unsigned int num_threads = std::thread::hardware_concurrency();
+    // if (num_threads == 0) num_threads = 4;
     
-    for (int i = 0; i < var_simulations_; ++i) {
-        double simulated_portfolio_value = 0.0;
-        
-        for (const auto& [instrument, quantity] : instruments) {
-            const std::string& asset_id = instrument->getAssetId();
-            const MarketData& md = market_data_map.at(asset_id);
+    unsigned int num_threads = 500;
+
+    auto worker = [&](int start, int end, unsigned int seed) {
+        std::mt19937 generator(seed);
+        std::normal_distribution<double> distribution(0.0, 1.0);
+
+        for (int i = start; i < end; ++i) {
+            double simulated_portfolio_value = 0.0;
             
-            const double random_shock = distribution(generator);
-            const double drift = (md.risk_free_rate - 0.5 * md.volatility * md.volatility) * dt;
-            const double diffusion = md.volatility * sqrt_dt * random_shock;
-            const double simulated_spot = md.spot_price * std::exp(drift + diffusion);
-            
-            if (std::isnan(simulated_spot) || std::isinf(simulated_spot) || simulated_spot <= 0.0) {
-                throw std::runtime_error("Invalid simulated spot price in risk metrics calculation");
+            for (const auto& [instrument, quantity] : instruments) {
+                const std::string& asset_id = instrument->getAssetId();
+                const MarketData& md = market_data_map.at(asset_id);
+
+                const double random_shock = distribution(generator);
+                const double drift = (md.risk_free_rate - 0.5 * md.volatility * md.volatility) * dt;
+                const double diffusion = md.volatility * sqrt_dt * random_shock;
+                const double simulated_spot = md.spot_price * std::exp(drift + diffusion);
+                
+                if (std::isnan(simulated_spot) || std::isinf(simulated_spot) || simulated_spot <= 0.0) {
+                    throw std::runtime_error("Invalid simulated spot price in VaR calculation");
+                }
+                
+                MarketData simulated_md = md;
+                simulated_md.spot_price = simulated_spot;
+                
+                double simulated_price = instrument->price(simulated_md);
+                
+                if (std::isnan(simulated_price) || std::isinf(simulated_price)) {
+                    throw std::runtime_error("Invalid simulated price in VaR calculation");
+                }
+                
+                simulated_portfolio_value += simulated_price * quantity;
             }
             
-            MarketData simulated_md = md;
-            simulated_md.spot_price = simulated_spot;
-            
-            double simulated_price = instrument->price(simulated_md);
-            
-            if (std::isnan(simulated_price) || std::isinf(simulated_price)) {
-                throw std::runtime_error("Invalid simulated price in risk metrics calculation");
-            }
-            
-            simulated_portfolio_value += simulated_price * quantity;
+            pnl_distribution[i] = simulated_portfolio_value - initial_portfolio_value;
         }
-        
-        if (std::isnan(simulated_portfolio_value) || std::isinf(simulated_portfolio_value)) {
-            throw std::runtime_error("Invalid simulated portfolio value");
-        }
-        
-        pnl_distribution.push_back(simulated_portfolio_value - initial_portfolio_value);
-    }
+    };
     
-    if (pnl_distribution.empty()) {
-        throw std::runtime_error("Risk metrics calculation produced no results");
+    std::vector<std::thread> threads;
+    int chunk = var_simulations_ / num_threads;
+    int remainder = var_simulations_ % num_threads;
+
+    std::random_device rd;
+    unsigned int base_seed = use_fixed_seed_ ? random_seed_ : rd();
+
+    int start = 0;
+    for (unsigned t = 0; t < num_threads; ++t) {
+        int end = start + chunk + (t < remainder ? 1 : 0);
+        if (start >= end) break;
+
+        unsigned int seed = base_seed; // deterministic per thread
+        threads.emplace_back(worker, start, end, seed);
+        start = end;
     }
+
+    for (auto& th : threads) th.join();
     
     // Sort the P&L distribution (ascending order: worst losses first)
     std::sort(pnl_distribution.begin(), pnl_distribution.end());

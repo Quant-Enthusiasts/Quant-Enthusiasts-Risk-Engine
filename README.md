@@ -85,7 +85,7 @@ Quant-Enthusiasts-Risk-Engine/
 ### Risk Metrics
 
 - **Greeks**: Delta, Gamma, Vega, Theta, Rho
-- **VaR**: Monte Carlo simulation (configurable paths)
+- **VaR**: Monte Carlo simulation (configurable paths), std::thread used for concurrency 
 - **Expected Shortfall**: 95%/99% confidence levels
 - **Portfolio Analytics**: Net positions, PV aggregation
 

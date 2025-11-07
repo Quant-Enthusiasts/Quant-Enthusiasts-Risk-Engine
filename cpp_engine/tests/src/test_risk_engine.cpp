@@ -5,6 +5,8 @@
 #include "simple_test.h"
 #include <cmath>
 #include <map>
+#include <chrono>
+#include <iostream>
 #include <memory>
 
 
@@ -482,6 +484,35 @@ void test_theta_time_decay(TestSuite &suite) {
   });
 }
 
+void test_parallel_improvement(TestSuite &suite) {
+  suite.run_test("Parallel computation improves performance", [&]() {
+    Portfolio portfolio;
+    portfolio.addInstrument(
+        std::make_unique<EuropeanOption>(OptionType::Call, 100.0, 1.0, "AAPL"),
+        5000);
+    portfolio.addInstrument(
+        std::make_unique<EuropeanOption>(OptionType::Put, 100.0, 1.0, "AAPL"),
+        5000 
+    );
+    std::map<std::string, MarketData> market_data_map;
+    market_data_map["AAPL"] = createMarketData("AAPL", 100.0, 0.05, 0.2);
+    RiskEngine engine(100000);
+    engine.setRandomSeed(42);
+    // average over multiple runs to reduce noise
+    double average_parallel_time = 0.0;
+    for (int i = 0; i < 1000; ++i) {
+      auto start_serial = std::chrono::high_resolution_clock::now();
+      engine.calculatePortfolioRisk(portfolio, market_data_map);
+      auto end_serial = std::chrono::high_resolution_clock::now();
+      std::chrono::duration<double> duration_serial = end_serial - start_serial;
+      average_parallel_time += duration_serial.count();
+    }
+    average_parallel_time /= 1000.0;
+    std::cout << "Average time for parallel computation: "
+              << average_parallel_time << " seconds." << std::endl;
+  });
+}
+
 int main() {
   TestSuite suite;
 
@@ -502,7 +533,7 @@ int main() {
   test_expected_shortfall_properties(suite);
   test_expected_shortfall_scaling(suite);
   test_theta_time_decay(suite);
-
+  test_parallel_improvement(suite);
   suite.print_summary();
 
   return suite.all_passed() ? 0 : 1;

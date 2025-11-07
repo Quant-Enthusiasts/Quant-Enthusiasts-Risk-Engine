@@ -109,6 +109,7 @@ ctest --output-on-failure
 - Jump diffusion model
 - Portfolio aggregation
 - Risk engine VaR calculations
+- Benchmarking VaR calculation performance under repeated Monte Carlo simulations
 
 ### Python Tests
 
