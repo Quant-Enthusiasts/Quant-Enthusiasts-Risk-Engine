@@ -47,7 +47,7 @@ python app.py
 
 Server runs at `http://127.0.0.1:5000`
 
-For detailed setup instructions, see [INSTALLATION.md](INSTALLATION.md).
+For detailed setup instructions, see [INSTALLATION.md](Docs/INSTALLATION.md).
 
 ## Architecture
 
@@ -96,7 +96,7 @@ Quant-Enthusiasts-Risk-Engine/
 - Bulk ticker updates
 - Volatility calculation from historical data
 
-See [MARKET_DATA.md](MARKET_DATA.md) for details.
+See [MARKET_DATA.md](Docs/market_data_guide.md) for details.
 
 ## Usage Example
 
@@ -124,7 +124,7 @@ curl -X POST http://127.0.0.1:5000/calculate_risk \
   }'
 ```
 
-Full API documentation: [API.md](API.md)
+Full API documentation: [API.md](Docs/api_reference.md)
 
 ## Performance
 
@@ -136,15 +136,15 @@ Full API documentation: [API.md](API.md)
 
 ## Documentation
 
-- [Installation Guide](INSTALLATION.md) - Detailed setup for all platforms
-- [API Reference](API.md) - Complete endpoint documentation
-- [Development Guide](DEVELOPMENT.md) - Testing, contributing, CI/CD
-- [Market Data Guide](MARKET_DATA.md) - YFinance integration details
-- [Deployment Guide](DEPLOYMENT.md) - Docker, production setup
+- [Installation Guide](Docs/INSTALLATION.md) - Detailed setup for all platforms
+- [API Reference](Docs/api_reference.md) - Complete endpoint documentation
+- [Development Guide](Docs/development_guide.md) - Testing, contributing, CI/CD
+- [Market Data Guide](Docs/market_data_guide.md) - YFinance integration details
+- [Deployment Guide](Docs/deployment_guide.md) - Docker, production setup
 
 ## Contributing
 
-We welcome contributions! Please see [DEVELOPMENT.md](DEVELOPMENT.md) for:
+We welcome contributions! Please see [DEVELOPMENT.md](Docs/development_guide.md) for:
 
 - Development setup
 - Code style guidelines
