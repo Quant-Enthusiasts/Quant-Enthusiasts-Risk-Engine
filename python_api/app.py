@@ -43,6 +43,10 @@ def validate_portfolio_item(item: Dict[str, Any], index: int) -> None:
     pricing_model = item.get('pricing_model', 'blackscholes').lower()
     if pricing_model not in ['blackscholes', 'binomial', 'jumpdiffusion']:
         raise ValueError(f"Portfolio item {index}: pricing_model must be 'blackscholes', 'binomial', or 'jumpdiffusion'")
+    
+    if 'binomial_steps' in item:
+        if not isinstance(item['binomial_steps'], int) or item['binomial_steps'] <= 0:
+            raise ValueError(f"Portfolio item {index}: binomial_steps must be a positive integer")
 
 def validate_market_data(asset_id: str, md: Dict[str, Any]) -> None:
     required_fields = ['spot', 'rate', 'vol']
@@ -521,6 +525,10 @@ def price_option():
             auto_fetched = False
         
         validate_market_data(asset_id, md_data)
+
+        if 'binomial_steps' in data:
+            if not isinstance(data['binomial_steps'], int) or data['binomial_steps'] <= 0:
+                return jsonify({'error': f"binomial_steps must be a positive integer"}), 400
         
         option = create_option({
             'type': data['type'],
